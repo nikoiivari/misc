@@ -1,0 +1,347 @@
+# Overview
+
+`@` accumulator is inside mega-alu
+`$` cache is outside mega-alu
+
+## Accumulator
+
+`@` registers inside mega-alu have built in MIMD ops which take effect over a range.
+The MIMD ops come in two forms vertical and horizontal.
+
+Vertical ops are: NAND, NOR, NOT, TON, and DUP.
+
+Horizontal ops are: ROL, ROR, ADD
+
+- Eight parallel instructions and eight parallel data is actually MIMD; not SIMD.
+
+- Can you have increment instruction that slides forwards? How do you increment the
+Instruction Capability (IC)?
+
+- Also maybe have register windows for PCB that stores @, $, IC and PR. PR is predication reg.
+Is .NOBITZUC the PR?
+
+- A way to set locus on specific data so that when data slides forward through the accumulator
+ops, the now modified data is accessible through the same variable without explicit indexing.
+So a sliding register window with implied indexing?
+
+NAND and NOR operations always begin with one parameter in an even register, and the other
+parameter in the next odd register. The result is stored in the next (increasing address)
+even register. This "sliding forwards" of the result to the next even register can be
+countered by doing two TON operations to move the result back to the previous even register,
+where the first parameter of the previous NAND or NOR operation used to be.
+
+NOT takes one input and inverts it, therefore NOT can be done from even to odd register, or
+from odd to even register. Two NOTs following one another on a value in an even register
+moves that value from the even register to the next (increasing address) even register.
+This happens through the odd register in between, which will have the inverted value after
+the first of those two NOT operations is done. Likewise two NOTs following one another on a
+value in an odd register moves that value from the odd register to the next (increasing 
+address) odd register. This happens through the even register in between, which will have the inverted bits after the first of those two NOT operations is done. This is because the NOT
+operation is reversible. Two NOT operations on the same data returns the original value of
+that data. Or to put it as an equation: NOT( NOT(X) ) == X.
+
+The NOT operation can also be performed in the other direction, towards decreasing adresses.
+TON is the name of the NOT operation backwards. One TON op inverts the bits of a value and
+stores the result in the previous register (odd or even). Two TON ops in succession will
+invert the bits twice, and store the results in the register two steps backwards. The
+register in between will be left with the inverted bits. This allows moving the values to a
+previous (decreasing address) register, two steps backwards. 
+
+The SKIP operation duplicates values from even registers to the next even registers. The
+odd registers in between are skipped and left unchanged.
+
+The SLIP operation duplicates values from even registers to the next odd registers. This
+is useful in situations where a logic gate is constructed of NAND-gates or NOR-gates, and
+the inputs are duplicated, eg. OR, XNOR, NOT, AND and MUX.
+
+## Cache
+
+Code can be executed from cache. Perhaps compressed code can be decompressed in accumulator,
+but it needs to be moved to cache registers before it can be executed. No execution of code
+from accumulator!
+
+
+## Direct memory access through capabilities
+
+### Accum capabilities
+
+Direct memory access to accumulator
+
+```
+accumallcaps = @                # assign full accumulator access capability
+accumspecificpage = @01fh:      # assign a specific page capability
+accumspecificreg = @020h:01h    # assign a specific register 01h from page 020h
+accumrangereg = @020h:02h...04h # assign a range of registers from page 020h
+accswizzle = @020h:05h...06h.st # assign a range of two most significant bytes from registers 05h
+                                # and 06h in page 020h
+```
+
+### Cache capabilities
+
+Direct memory access to cache
+
+```
+cacheallcaps = $                # assign full cache access capability
+cachespecificpage = $008h:      # assign a specific page capability
+cachepagerange = $009h-00bh:    # continous three-page range capability
+```
+
+## Indexing instead of direct memory access
+
+Square brackets `[` and `]` imply indexing -- not direct memory access.
+
+```
+# push @ here?
+
+@ = @01eh...01fh:    # direct memory capability to actual memory region. Two pages in total.
+
+# push @ here?
+
+@ = @[:0...3]       # page 0 (from memory range given in the direct memory capability),
+                    # registers from 0 to 3 inclusive. Four registers in total.
+
+# ...do sth with the registers.
+# then pop @
+# then push @ again.
+
+@ = @[0...1:]       # pages from 0 to 1 inclusive. Two pages in total. Page 0 is the first
+                    # page in the memory range given in the direct memory capability.
+```
+
+Indexing is a way for the program to access memory without knowing actual memory adressess.
+When a program starts it recieves a capability to the memory it can access, and this capability
+can be split off to sub-capabilities that control smaller sub-areas of that memory. Indexed
+memory areas are always continous -- no memory mapping of discontinous pages is done.
+
+
+## Assignment instruction
+
+The regular assignment instruction is the equal-sign: `=`.
+
+```
+var = other_var     # move data from other_var to var
+
+```
+
+The assignment instruction also has a variant that can add gaps between registers in the
+memory range. For example you can spread the registers from `other_var` so that there is
+a gap of three registers in the destination `var`.
+
+```
+# variable definitions
+var[:16]        :   even    .stuvwxyz   8byte   unsigned
+other_var[:4]   :   even    .stuvwxyz   8byte   unsigned
+
+# ...
+
+var =\\\ other_var      # 4 registers is spread out to 16 registers
+```
+
+Using syntatic sugar provided by the assembler one can define complex patterns for
+the data being moved to the destination.
+
+```
+# variable definitions
+var[:16]        :   even    .stuvwxyz   8byte   unsigned
+other_var[:4]   :   even    .stuvwxyz   8byte   unsigned
+
+# ...
+
+var =\\\=\\\==\\\\\\ other_var      # 4 registers is spread out in a pattern
+```
+
+These syntatic-sugar patterns will generate multiple actual assignment instructions.
+
+## add constant to accumulator, then add from memory, using one's complement addition.
+
+Using one's complement for signed integers gives us negative zero and positive zero.
+
+See: https://www.tutorialspoint.com/one-s-complement. Apparently you can get subtraction for the price of one NOT and two ADDs when carry bit is set, and two NOTs and one ADD when it isn't.
+
+
+```
+@.stuv + 100
+@.stuv + cap.stuv
+```
+
+## subtract from accumulator
+
+```
+.stuv - 100
+.stuv - cap.wxyz
+```
+
+## use swizzle to do subtraction on 16bit integers in accumulator
+
+```
+.stuvwxyz = cap2.stuvwxyz           # load 64bits (8byte) from memory to accumulator
+= cap2.stuvwxyz                     # the exact same instruction as previous line
+= cap2                              # the exact same instruction as previous line
+
+.uv = .wx - yz                      # subtract .yz from .wx, store result in .uv
+
+.st - .uv                           # subtract .uv from .st, store result in .st
+.st = .st - .uv                     # the exact same instruction as the previous line,
+                                    # but redundant verbose syntax
+
+.uvwxyz = 0.uvwxyz                  # move zero register into .uvwxyz of accumulator,
+                                    # keep .st of accumulator unchanged
+
+cap2.stuvwxyz = .stuvwxyz           # store 64bits (8byte) to memory from accumulator
+cap2.stuvwxyz =                     # the exact same instruction as previous line
+cap2 =                              # the exact same instruction as previous line
+```
+
+# Branching or predicates?
+
+## jump based on byte-swizzle specific carry-flag
+
+Perhaps use predicates to not have any jump instructions at all?
+
+```
+.z + 256                            # set carry flag for .z
+oncarry .z cap_code1                # branch on carry flag set for .z
+```
+
+Perhaps use an instruction to set predicates for the next n number of instructions?
+Or perhaps just prefix the line with `oncarry`.
+
+```
+.s + 250                # carry flag for .s will be set if .s + 250 is more than 255.
+oncarry .s @.yz + 64
+oncarry .s @.wx + 255
+$.wx = @.wx             # this instruction is not executed if carry bit for .s is set.
+oncarry .s
+```
+
+But.. then you can not include .s in the additions on the following lines for fear that
+the .s carry bit might be cleared. This would then prevent the execution of the following
+lines that start with oncarry .s.
+
+Also, what register or memory address is the .s swizzle referring to?
+
+## jump based on byte-swizzle specific zero-flag
+
+```
+.s = 100
+.s - 100                            # set zero flag for .s
+onzero .s cap_code2                 # branch on zero flag set for .s
+```
+
+## force a jump by explicitly setting overflow flag for .s in status register
+
+```
+.O or 10000000b                     # .NOBITZUC is the status register
+onoverflow .s cap_code3
+```
+
+## .NOBITZUC is the status register
+
+- .N Set if the result of an operation is a negative integer
+- .O Set on overflow
+- .B 
+- .I Interrupt?
+- .T
+- .Z Set if the result of an operation is a zero. Also .N is set if zero is negative.
+- .U Undefined instruction?
+- .C Carry flag
+
+Prehaps Interrupts and Traps are .I and .T? What is .B?
+
+# General instruction format
+
+What fields are needed in each type of instruction?
+
+Full instruction has two parameters `destination` and `source`. For instance: 
+`destination + source`. So three fields are needed: destination, operation and source.
+Destination and source are capabilities. There are four types of cache capabilities:
+`$`, `$page:`, `$page:register`, `$page:register-range`. Likewise there are four accum
+capabilities: `@`, `@page:`, `@page:register`, `@page:register-range`. And then there
+are swizzles on top of those.
+
+- destination page1    12bits
+- destination reg1      8bits
+- destination page2    12bits
+- destination reg2      8bits
+- destination swizzles  8bits
+- source page1         12bits
+- source reg1           8bits
+- source page2         12bits
+- source reg2           8bits
+- source swizzles       8bits
+- opcode               14bits = 110bits in total
+
+How to pack these into instructions?
+
+65535 * 2048 = 134 Megabytes
+ 4096 * 2048 =   8 Megabytes
+
+1byte mini instructions work on current range capability, so they don't need parameter
+fields. Opcode only. So there is a need for @-capability register and $-capability register.
+these capability registers need to hold the following
+
+range capability:
+
+- page1    12bits
+- reg1      8bits
+- page2    12bits
+- reg2      8bits = 40bits
+- swizzles  8bits = 48bits in total
+
+- unused   16bits (out of 64bits)
+
+This defines a range of page1:reg1 to page2:reg2.
+
+# Varying size instructions, and packing them into 8byte doublewords
+
+## 1byte mini instruction
+
+1byte mini instruction bits:
+
+|bit 6-7: |bit 0-5:                     |
+|----|----|----|----|----|----|----|----|
+| i.type  | opcode                      |
+
+The two most significant bits convey the instruction type. In this case 11b. The different
+posibilities for these bits are:
+
+| i.type       | Meaning                   |
+|--------------|---------------------------|
+| i.type = 11b | 1byte mini instruction    |
+| i.type = 10b | 2byte 16bit instruction   |
+| i.type = 01b | 6byte 48bit instruction   |
+| i.type = 00b | 8byte mega instruction    |
+
+The 6bit opcode field can specify opcode 0-63
+
+| opcode  | Functionality                                                    |
+|---------|------------------------------------------------------------------|
+| 000000b | padding, can often be optimised out without wasting a full cycle |
+| 000001b | nop -- No Operation. spends 1 clock cycle                        |
+| 000010b | +, add -- Addition on the accum range...                         |
+
+Many of the 1byte mini instructions work on accumulator ranges that have been previously
+specified by an 8byte mega instruction. Mini instructions may not modify the current range
+capability, so that later mini instructions can also operate on that range.
+
+## 2byte 16bit instruction
+
+## 6byte 48bit instruction
+
+6byte instructions are packed into 8byte dword.
+They are paded on the left or the right side. In this case `i.type` is three bits.
+
+| i.type        | Meaning                                                   |
+|---------------|-----------------------------------------------------------|
+| i.type = 011b | 6byte instruction followed by two 1byte mini instructions |
+| i.type = 101b | 1byte 6byte 1byte makes total of 8byte                    |
+| i.type = 110b | 1byte, 1byte, 6byte makes total of 8byte                  |
+|---------------|-----------------------------------------------------------|
+| i.type = 001b | 6byte instruction followed by one 2byte instruction       |
+| i.type = 100b | 2byte instruction followed by 6byte instruction           |
+|---------------|-----------------------------------------------------------|
+| i.type = 111b | eight 1byte instructions makes an 8byte                   |
+| i.type = 010b |                                                           |
+| i.type = 000b | 8byte mega instruction                                    |
+
+## 8byte mega instruction
