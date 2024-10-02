@@ -47,10 +47,7 @@ invert the bits twice, and store the results in the register two steps backwards
 register in between will be left with the inverted bits. This allows moving the values to a
 previous (decreasing address) register, two steps backwards. 
 
-The SKIP operation duplicates values from even registers to the next even registers. The
-odd registers in between are skipped and left unchanged.
-
-The SLIP operation duplicates values from even registers to the next odd registers. This
+The DUP operation duplicates values from even registers to the next odd registers. This
 is useful in situations where a logic gate is constructed of NAND-gates or NOR-gates, and
 the inputs are duplicated, eg. OR, XNOR, NOT, AND and MUX.
 
