@@ -24,6 +24,10 @@ Is .NOBITZUC the PR?
 ops, the now modified data is accessible through the same variable without explicit indexing.
 So a sliding register window with implied indexing?
 
+- There needs to be a way to mask a group of discontinous registers within the range, and
+have the mask slide with the instructions so that the mask alway masks the result value of 
+the previous executed instruction.
+
 NAND and NOR operations always begin with one parameter in an even register, and the other
 parameter in the next odd register. The result is stored in the next (increasing address)
 even register. This "sliding forwards" of the result to the next even register can be
