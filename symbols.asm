@@ -10,17 +10,21 @@ req $[1/4:]     # require 1/4th of a page of cache to run (256/4 = 64)
 
 # Variable definitions in the scope of func main. These are similiar to labels,
 # and have a colon ':' after the variable name.
-    accum   : even  .stuvwxyz   8byte   capability
-    cache   : odd   .stuvwxyz   8byte   capability
-    foo     : even  .stuv       4byte   unsigned
-    bar     : pack      .wxyz   4byte   unsigned    # .wxyz gets packed into
+var accum   : even  .stuvwxyz   8byte   capability
+var cache   : odd   .stuvwxyz   8byte   capability
+var foo     : even  .stuv       4byte   unsigned
+var bar     : pack      .wxyz   4byte   unsigned    # .wxyz gets packed into
                                                     # the previous dword.
                                                     # It will be even.
+in argc     : odd   .stuvwxyz   8byte   unsigned
+in argv     : even  .stuvwxyz   8byte   capability
+
+out status  : odd   .z          1byte   signed
 
 # main is a label, but the fun keyword makes it a function label.
-fun main:
+fun main (argc, argv):
 
-accum = @           # save accumulator
-@ = @[:0...3]       # Square brackets '[' and ']' imply indexing -- not direct memory access
+    accum = @           # save accumulator
+    @ = @[:0...3]       # Square brackets '[' and ']' imply indexing -- not direct memory access
 
-return              # func main ends
+return (status)         # fun main ends
