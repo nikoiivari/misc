@@ -87,7 +87,8 @@ fn parse_code (code:String) -> (Op, Id) {
             "in"  => println!("function input..."),
             "out" => println!("function output..."),
             "fun" => println!("function declaration..."),
-            "return" => println!("function return..."),
+            "snuff" => println!("function gets snuffed..."),
+            "nuf" => println!("function declaration ends."),
             &_ => println!("something else."),
         }
     }

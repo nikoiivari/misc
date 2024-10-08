@@ -16,15 +16,18 @@ var foo     : even  .stuv       4byte   unsigned
 var bar     : pack      .wxyz   4byte   unsigned    # .wxyz gets packed into
                                                     # the previous dword.
                                                     # It will be even.
-in argc     : odd   .stuvwxyz   8byte   unsigned
-in argv     : even  .stuvwxyz   8byte   capability
+in argc     : odd   .stuvwxyz   8byte   signed
+in argv[]   : even  .stuvwxyz   8byte   capability
 
-out status  : odd   .z          1byte   signed
+out status  : odd          .z   1byte   signed
 
 # main is a label, but the fun keyword makes it a function label.
 fun main (argc, argv):
 
     accum = @           # save accumulator
     @ = @[:0...3]       # Square brackets '[' and ']' imply indexing -- not direct memory access
-
-return (status)         # fun main ends
+    @ =<<< b0           # Shift left by 3, slide down 3. @ is now at the same register as @[:3]
+    status = 0          # Gotta always return a status byte from main. Something has to be written
+                        # to status before the function exits.
+    
+nuf (status)            # fun main ends

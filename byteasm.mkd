@@ -28,6 +28,10 @@ So a sliding register window with implied indexing?
 have the mask slide with the instructions so that the mask alway masks the result value of 
 the previous executed instruction.
 
+- Divide the range of registers with a nice round number like 2, 4, 8, 16, 32, or 64. Then
+Have the same computations take place for all the divided sub-ranges. Any masking done in
+one sub-range must apply to all sub-ranges.
+
 NAND and NOR operations always begin with one parameter in an even register, and the other
 parameter in the next odd register. The result is stored in the next (increasing address)
 even register. This "sliding forwards" of the result to the next even register can be
@@ -135,7 +139,7 @@ other_var[:4]   :   even    .stuvwxyz   8byte   unsigned
 
 # ...
 
-var =\\\ other_var      # 4 registers is spread out to 16 registers
+var =^^^ other_var      # 4 registers is spread out to 16 registers
 ```
 
 Using syntatic sugar provided by the assembler one can define complex patterns for
@@ -148,7 +152,7 @@ other_var[:4]   :   even    .stuvwxyz   8byte   unsigned
 
 # ...
 
-var =\\\=\\\==\\\\\\ other_var      # 4 registers is spread out in a pattern
+var =^^^=^^^==^^^^^^ other_var      # 4 registers is spread out in a pattern
 ```
 
 These syntatic-sugar patterns will generate multiple actual assignment instructions.
