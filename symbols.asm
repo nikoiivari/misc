@@ -28,7 +28,7 @@ fun main (argc, argv):
 
     accum = @           # save accumulator
     @ = @[0:0...3]      # Square brackets '[' and ']' imply indexing -- not direct memory access
-    @ =<<< b0           # Shift left by 3, slide down 3. @ is now at the same register as @[:3]
+    @ :<<3 b0           # Shift left by 3, slide down 3. @ is now at the same register as @[:3]  ???
     
     @ = accum           # restore accumulator
     @ = @[0:0...15]     # Accumulator region is 16 registers long
@@ -38,4 +38,4 @@ fun main (argc, argv):
     status = 0          # Gotta always return a status byte from main. Something has to be written
                         # to status before the function exits.
     
-nuf (status)            # fun main ends
+nuf (status)            # fun main ends, returning status.

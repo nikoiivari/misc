@@ -22,7 +22,8 @@ Is .NOBITZUC the PR?
 
 - A way to set locus on specific data so that when data slides forward through the accumulator
 ops, the now modified data is accessible through the same variable without explicit indexing.
-So a sliding register window with implied indexing?
+So a sliding register window with implied indexing? The sliding register window actually shrinks
+the range from lower address towards higher address, or in the other direction with some Ops.
 
 - There needs to be a way to mask a group of discontinous registers within the range, and
 have the mask slide with the instructions so that the mask alway masks the result value of 
