@@ -33,7 +33,7 @@ fun main (argc, argv):
     @ = accum           # restore accumulator
     @ = @[0:0...15]     # Accumulator region is 16 registers long
     @ = @{0:0...3}      # Mask sub-region to registers 0...3. All operations on this sub-region
-                        # will be replicated on all the current accumulator registers.
+                        # will be replicated on all the current region accumulator registers.
     
     status = 0          # Gotta always return a status byte from main. Something has to be written
                         # to status before the function exits.

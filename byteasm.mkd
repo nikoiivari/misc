@@ -112,6 +112,8 @@ Square brackets `[` and `]` imply indexing -- not direct memory access.
 
 @ = @[0...1:]       # pages from 0 to 1 inclusive. Two pages in total. Page 0 is the first
                     # page in the memory range given in the direct memory capability.
+
+@ = @[0:0...1:255]  # should it be possible to specify a range like this?
 ```
 
 Indexing is a way for the program to access memory without knowing actual memory adressess.
@@ -288,15 +290,21 @@ these capability registers need to hold the following
 
 range capability:
 
-- page1    12bits
-- reg1      8bits
-- page2    12bits
-- reg2      8bits = 40bits
-- swizzles  8bits = 48bits in total
+- page1        12bits
+- page2        12bits
+- reg1          8bits
+- reg2          8bits = 40bits
+- swizzles      8bits = 48bits
+- sub-region1   8bits = 56bits
+- sub-region2   8bits = 64bits total
 
-- unused   16bits (out of 64bits)
+This defines a range of page1:reg1 to page2:reg2 ( or pg1:rg1...pg2:rg2 ). Alternatively
+It defines a range of ( pg1...pg2:rg1...rg2 ), which means a range of reg1 to reg2 in 
+each of page1 to page2.
 
-This defines a range of page1:reg1 to page2:reg2.
+Sub-region1 is the starting register of the sub-region mask, while sub-region2 is the end
+register. The sub-region may not cross page boundaries and may be no more than 1 page
+(or 256 registers) in size.
 
 # Varying size instructions, and packing them into 8byte doublewords
 
