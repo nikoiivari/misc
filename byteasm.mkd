@@ -306,6 +306,9 @@ Sub-region1 is the starting register of the sub-region mask, while sub-region2 i
 register. The sub-region may not cross page boundaries and may be no more than 1 page
 (or 256 registers) in size.
 
+- Maybe use some kind of division of the page instead of start...end register indices?
+Perhaps @/64 to set sub regions to 4 registers each?
+
 # Varying size instructions, and packing them into 8byte doublewords
 
 ## 1byte mini instruction
