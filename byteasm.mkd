@@ -6,7 +6,7 @@
 ## Accumulator
 
 `@` registers inside mega-alu have built in MIMD ops which take effect over a range.
-The MIMD ops are: NOP, NAND, NOR, NOT, TON, ROL, ROR, and DUP.
+The MIMD ops are: NAND, NOR, XOR, NOT, TON, ROL, ROR, DUP and NOP.
 
 - ROL and ROR can also have variants with NOT and TON?
 
