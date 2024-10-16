@@ -10,6 +10,8 @@ The MIMD ops are: NAND, NOR, XOR, NOT, TON, ROL, ROR, DUP and NOP.
 
 - ROL and ROR can also have variants with NOT and TON?
 
+- ROL and ROR can also work as SHL and SHR with one extra bit in the opcode. 
+
 - Eight parallel instructions and eight parallel data is actually MIMD; not SIMD.
 
 - Can you have increment instruction that slides forwards? How do you increment the
