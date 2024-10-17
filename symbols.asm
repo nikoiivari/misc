@@ -7,6 +7,7 @@ req $[1/4:]     # require 1/4th of a page of cache to run (256/4 = 64)
 
 # Link in functions from other files or libraries
 # use thingamagadget.asm
+use string          # does parsing of argv[] require this?
 
 scope main
     # Variable definitions in the scope of func main. These are similiar to labels,
@@ -18,7 +19,7 @@ scope main
                                                         # the previous dword.
                                                         # It will be even.
     in argc     : odd   .stuvwxyz   8byte   signed
-    in argv[]   : even  .stuvwxyz   8byte   capability
+    in argv[]   : even  .stuvwxyz   8byte   capability  # argv[] should use string?
 
     out status  : odd          .z   1byte   signed
 epocs
@@ -28,16 +29,15 @@ fun main (argc, argv):
 
     accum = @           # save accumulator
     @ = @[0:0...3]      # Square brackets '[' and ']' imply indexing -- not direct memory access
-    @ :<<3 b0           # Shift left by 3, slide down 3. @ is now at the same register as @[:3]  ???
-    
+    @ <<3 b0            # Shift left by 3 bit positions, slide down by 3 registers. Value is now
+                        # at the register @[:3].
+
     @ = accum           # restore accumulator
     @ = @[0:0...15]     # Accumulator region is 16 registers long
-    
-    @ = @{:0...3}       # Mask sub-region to registers 0...3. All operations on this sub-region
-                        # will be replicated on all the current region accumulator registers.
-    
-    @ = @/64            # Set sub region mask to 4 (256 / 64 = 4)
-                        # Choose one or the other?
+
+    @ = @/64            # Set sub-division to four registers. All operations on the accumulator
+                        # will be replicated on all the current region accumulator registers
+                        # in groups of four registers.
     
     status = 0          # Gotta always return a status byte from main. Something has to be written
                         # to status before the function exits.

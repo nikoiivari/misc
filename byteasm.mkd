@@ -6,11 +6,20 @@
 ## Accumulator
 
 `@` registers inside mega-alu have built in MIMD ops which take effect over a range.
-The MIMD ops are: NAND, NOR, XOR, NOT, TON, ROL, ROR, DUP and NOP.
+The MIMD ops are: NAND, NOR, XOR, 
+NOT, TON, ROL, ROR, DUP and NOP.
 
 - ROL and ROR can also have variants with NOT and TON?
 
-- ROL and ROR can also work as SHL and SHR with one extra bit in the opcode. 
+- ROL and ROR can also work as SHL and SHR with one extra bit in the opcode.
+
+- The other logic gates can be easily implemented with very few micro ops.
+- - AND is an inverted input NOR gate.
+- - AND is also an inverted output NAND gate.
+- - OR is an inverted input NAND gate.
+- - OR is also an inverted output NOR gate.
+- - NOT is a duplicated input NAND gate.
+- - NOT is also a duplicated input NOR gate.
 
 - Eight parallel instructions and eight parallel data is actually MIMD; not SIMD.
 
@@ -97,19 +106,14 @@ cachepagerange = $009h-00bh:    # continous three-page range capability
 Square brackets `[` and `]` imply indexing -- not direct memory access.
 
 ```
-# push @ here?
-
-@ = @01eh...01fh:    # direct memory capability to actual memory region. Two pages in total.
-
-# push @ here?
+# ...save accum here?
+@ = @01eh...01fh:   # direct memory capability to actual memory region. Two pages in total.
 
 @ = @[:0...3]       # page 0 (from memory range given in the direct memory capability),
                     # registers from 0 to 3 inclusive. Four registers in total.
 
 # ...do sth with the registers.
-# then pop @
-# then push @ again.
-
+# ...restore accum here?
 @ = @[0...1:]       # pages from 0 to 1 inclusive. Two pages in total. Page 0 is the first
                     # page in the memory range given in the direct memory capability.
 
@@ -159,6 +163,37 @@ var =^^^=^^^==^^^^^^ other_var      # 4 registers is spread out in a pattern
 ```
 
 These syntatic-sugar patterns will generate multiple actual assignment instructions.
+
+### Assignment instruction is also used on '@' and '$'
+
+Only capabilities are assigned to @ or $. It can be said that @ and $ are of type
+capability. Casting from type capability to type unsigned should be possible, but
+the capability bit gets cleared when that is done. The result of such casting can
+not be stored in @ or $, as these registers only hold capabilities.
+
+Turning a 8byte unsigned in to a capability is called minting. Executing instructions
+that mint new capabilities requires the mint capability (or mint-mode?).
+
+Subdividing an existing capability can be done by any piece of code, if that code
+has been given a capability to subdivide.
+
+A regular pattern is to save the accumulator to a variable, and restore it from that
+variable later on.
+
+```
+accum = @   # Save accumulator so you can restore it later. The capability gets
+            # saved to the variable accum, which is of type capability.
+@ = var     # @ is now limited to the range of registers defined by var[:16].
+            # var is a range of type unsigned. Only the ...um? ..explain this plz!
+
+# ...do sth with current @.
+
+@ = accum   # Restore accumulator.
+```
+
+Note that no minting is going on here.
+- explain why?
+
 
 ## add constant to accumulator, then add from memory, using one's complement addition.
 
