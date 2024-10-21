@@ -7,6 +7,7 @@ req $[1/4:]     # require 1/4th of a page of cache to run (256/4 = 64)
 
 # Link in functions from other files or libraries
 # use thingamagadget.asm
+use types           # what would the code look like without types?
 use string          # does parsing of argv[] require this?
 
 scope main
@@ -29,13 +30,13 @@ fun main (argc, argv):
 
     accum = @           # save accumulator
     @ = @[0:0...3]      # Square brackets '[' and ']' imply indexing -- not direct memory access
-    @ <<3 b0            # Shift left by 3 bit positions, slide down by 3 registers. Value is now
+    @ << 3 b0           # Shift left by 3 bit positions, slide down by 3 registers. Value is now
                         # at the register @[:3].
 
     @ = accum           # restore accumulator
     @ = @[0:0...15]     # Accumulator region is 16 registers long
 
-    @ = @/64            # Set sub-division to four registers. All operations on the accumulator
+    @ = @[:[/64]]         # Set sub-division to four registers. All operations on the accumulator
                         # will be replicated on all the current region accumulator registers
                         # in groups of four registers.
     

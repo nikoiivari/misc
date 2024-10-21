@@ -141,12 +141,12 @@ a gap of three registers in the destination `var`.
 
 ```
 # variable definitions
-var[:16]        :   even    .stuvwxyz   8byte   unsigned
-other_var[:4]   :   even    .stuvwxyz   8byte   unsigned
+@var[:16]       :   even    .stuvwxyz   8byte
+$other_var[:4]  :   even    .stuvwxyz   8byte
 
 # ...
 
-var =^^^ other_var      # 4 registers is spread out to 16 registers
+var[:0...15] =^^^ other_var[:0...3]  # 4 registers is spread out to 16 registers
 ```
 
 Using syntatic sugar provided by the assembler one can define complex patterns for
@@ -154,12 +154,12 @@ the data being moved to the destination.
 
 ```
 # variable definitions
-var[:16]        :   even    .stuvwxyz   8byte   unsigned
-other_var[:4]   :   even    .stuvwxyz   8byte   unsigned
+@var[:16]       :   even    .stuvwxyz   8byte
+$other_var[:4]  :   even    .stuvwxyz   8byte
 
 # ...
 
-var =^^^=^^^==^^^^^^ other_var      # 4 registers is spread out in a pattern
+var[:0...15] =^^^=^^^==^^^^^^ other_var[0...3]  # 4 regs are spread out in a pattern
 ```
 
 These syntatic-sugar patterns will generate multiple actual assignment instructions.
@@ -192,7 +192,31 @@ accum = @   # Save accumulator so you can restore it later. The capability gets
 ```
 
 Note that no minting is going on here.
-- explain why?
+
+The below examples illustrate what is going on in each case.
+
+```
+accum = @           # accum only recieves the capability of @. The data controlled by @
+                    # is not copied. The capability bit of accum gets set. Single Op.
+
+@ = var             # @ only recieves capability of var, so anything done to @ now will 
+                    # result in the data of var changing. var is [:16] so now @ is also 
+                    # of that capacity. Single Op.
+
+@[:0...15] = var    # @[:0...15] is refering to a range of registers in @. The actual
+                    # data in var is moved to this range inside @. @-capability
+                    # itself remains unchanged. Composite Op.
+
+var = @[:0...15]    # The actual data in @[:0...15] is moved to var. var is [:16] in
+                    # capacity, so there is enough room to recieve the data.
+                    # Composite Op.
+
+@ = accum           # @ recieves the capability of accum. accum must have the capability
+                    # bit set, so that it is a valid capability, and the capability
+                    # must have the @-bit set so that it is a valid @-capability. You
+                    # can not assign a cache-capability to the accumulator.
+                    # Single Op.
+```
 
 
 ## add constant to accumulator, then add from memory, using one's complement addition.
@@ -323,6 +347,27 @@ How to pack these into instructions?
 fields. Opcode only. So there is a need for @-capability register and $-capability register.
 these capability registers need to hold the following
 
+# Capability format
+
+## Capability header
+
+Capability header (n most significant bits):
+
+- @ or $ type                   1bit
+- executable (for $-type only)  1bit
+- page-range or register-range  1bit
+- reserved bit                  1bit  = 4bits
+- page divider (in left shifts) 4bits = 8bits total
+
+
+## Page range capability
+
+- firstpage        12bits
+- lastpage         12bits
+- firstregister     8bits
+- lastregister      8bits = 40bits total
+
+
 range capability:
 
 - page1        12bits
@@ -333,16 +378,28 @@ range capability:
 - sub-region1   8bits = 56bits
 - sub-region2   8bits = 64bits total
 
+- needs a bit to tell us if it is a @-capability, or a $-capability.
+- needs a bit to tell us if it is a [pg1:rg1...pg2:rg2] or a [pg1...pg2:rg1...rg2]
+
 This defines a range of page1:reg1 to page2:reg2 ( or pg1:rg1...pg2:rg2 ). Alternatively
 It defines a range of ( pg1...pg2:rg1...rg2 ), which means a range of reg1 to reg2 in 
 each of page1 to page2.
 
-Sub-region1 is the starting register of the sub-region mask, while sub-region2 is the end
-register. The sub-region may not cross page boundaries and may be no more than 1 page
-(or 256 registers) in size.
+Continous page range capability
 
-- Maybe use some kind of division of the page instead of start...end register indices?
-Perhaps @/64 to set sub regions to 4 registers each?
+The sub-region is set as a divider of page-size. It applies to all pages in a range.
+
+Use one of the following to set sub regions to 4 registers each:
+
+@[:[4]]
+@[:[256/64]]
+@[:[/64]]
+@[:[1<<6]]
+
+Turn page divider off:
+
+@[:[0]]
+
 
 # Varying size instructions, and packing them into 8byte doublewords
 
