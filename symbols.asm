@@ -36,7 +36,7 @@ fun main (argc, argv):
     @ = accum           # restore accumulator
     @ = @[0:0...15]     # Accumulator region is 16 registers long
 
-    @ = @[:[/64]]         # Set sub-division to four registers. All operations on the accumulator
+    @subdiv 1<<6        # Set sub-division to four registers. All operations on the accumulator
                         # will be replicated on all the current region accumulator registers
                         # in groups of four registers.
     

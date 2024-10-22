@@ -353,19 +353,32 @@ these capability registers need to hold the following
 
 Capability header (n most significant bits):
 
-- @ or $ type                   1bit
-- executable (for $-type only)  1bit
-- page-range or register-range  1bit
-- reserved bit                  1bit  = 4bits
-- page divider (in left shifts) 4bits = 8bits total
+- @ or $ type                       1bit
+- executable (for $-type only)      1bit
+- page-range or register-range      1bit
+- reserved bit                      1bit  = 4bits
 
+- page divider mask (use with NOR)  4bits 
+
+- Use page divider in memory address calculations, so that it is not possible for a
+  range to start at an odd address. TODO!!!
+
+(range_begin_address).stu = (page).st (register  AND page_divider_mask).u
+
+This will zero out the lower bits to set the address at a reasonable location...
 
 ## Page range capability
 
 - firstpage        12bits
-- lastpage         12bits
 - firstregister     8bits
+- lastpage         12bits
 - lastregister      8bits = 40bits total
+
+## Register range capability
+
+- page             12bits
+- firstregister     8bits
+- lastregister      8bits = 28bits total
 
 
 range capability:
@@ -391,15 +404,15 @@ The sub-region is set as a divider of page-size. It applies to all pages in a ra
 
 Use one of the following to set sub regions to 4 registers each:
 
-@[:[4]]
-@[:[256/64]]
-@[:[/64]]
-@[:[1<<6]]
+```
+@subdiv 1<<6
+```
 
 Turn page divider off:
 
-@[:[0]]
-
+```
+@subdiv 0
+```
 
 # Varying size instructions, and packing them into 8byte doublewords
 
