@@ -6,8 +6,20 @@
 ## Accumulator
 
 `@` registers inside mega-alu have built in MIMD ops which take effect over a range.
-The MIMD ops are: NAND, NOR, XOR, 
-NOT, TON, ROL, ROR, DUP and NOP.
+The MIMD ops are: NAND, NOR, NOT, TON, DUP, ROL, ROR and NOP.
+
+Symbols:
+
+eo.nand.e
+eo.nor.e
+e.not.o
+eo.not.eo
+e.dup.o
+eo.dup.eo
+e.rol.o   ?
+
+- Needs an instruction to invert inputs for NAND and NOR easily. Maybe a variant of NOT?
+  So eo.not.eo does this?
 
 - ROL and ROR can also have variants with NOT and TON?
 
