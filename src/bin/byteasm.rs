@@ -20,17 +20,47 @@ impl Op {
 }
 
 #[derive(Debug)]
+enum IdType {
+    IdNotAnId,
+    Idask,
+    Idreq,
+    Iduse,
+    Idscope,
+    Idepocs,
+    Idvar,
+    Idin,
+    Idout,
+    Idfun,
+    Idnuf,
+}
+
+#[derive(Debug)]
+enum MemType {
+    MemNotAMem,
+    MemAccumPages,
+    MemCachePages,
+    MemAccumRegs,
+    MemCacheRegs,
+}
+
+#[derive(Debug)]
 struct Id {
-    id:String,
+    t:IdType,
+    param: String,
+    m: MemType,
 }
 
 impl Id {
-    pub fn new(id:String) -> Self {
+    pub fn new(t:IdType, param:String, m:MemType) -> Self {
         Id {
-            id: id,
+            t: t,
+            param: param,
+            m: m,
         }
     }
 }
+
+//====
 
 fn nand(ina:u64, inb:u64) -> u64
 {
@@ -65,8 +95,8 @@ fn main ()
 
             // parse instruction
             if "" != code {
-                let o:Op; let i:Id;
-                (o, i) = parse_code(code);
+                let _o:Op; let _i:Id;
+                (_o, _i) = parse_code(code);
                 //println!("{:?}, {:?}", o, i);
             } // else an empty code; ignore empty code
         }
@@ -76,13 +106,15 @@ fn main ()
 // parse_code -- generate Op struct for code statement
 fn parse_code (code:String) -> (Op, Id) {
     
-    
+    let _o: Op = Op::new(0x0, 0x0);
+    let mut i: Id = Id::new(IdType::IdNotAnId, "foo".to_string(), MemType::MemNotAMem);
+
     let v: Vec<&str> = code.split(' ').collect(); // does this work with tabs?
     if 0 < v.len() {
         //println!("{:?}", v[0]);
         match v[0] {
-            "ask" => println!("ask for..."),
-            "req" => println!("require..."),
+            "ask" => i = parse_id(v, IdType::Idask),
+            "req" => i = parse_id(v, IdType::Idreq),
             "use" => println!("use module..."),
             "enum" => println!("enum begins..."),
             "mune" => println!("enum ends."),
@@ -108,7 +140,19 @@ fn parse_code (code:String) -> (Op, Id) {
         }
     }
     
-    let o:Op = Op::new(0x0, 0x0);
-    let i:Id = Id::new("foo".to_string());
-    (o, i)
+    (_o, i)
+}
+
+fn parse_id ( v: Vec<&str>, idt: IdType)-> Id {
+    let mut i: Id = Id::new(IdType::IdNotAnId, "foo".to_string(), MemType::MemNotAMem);
+    if 1 < v.len() {
+        println!("{:?}", v);
+        //match v[1] {
+            
+        //}
+    }
+    else {
+        println!("Error: identifier expects parameter.");
+    }
+    i
 }
