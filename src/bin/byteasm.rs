@@ -115,13 +115,13 @@ fn parse_code (code:String) -> (Op, Id) {
         match v[0] {
             "ask" => i = parse_id(v, IdType::Idask),
             "req" => i = parse_id(v, IdType::Idreq),
-            "use" => println!("use module..."),
+            "use" => i = parse_id_use(v),
             "enum" => println!("enum begins..."),
             "mune" => println!("enum ends."),
             "struc" => println!("struc begins..."),
             "curts" => println!("struc ends."),
-            "scope" => println!("scope begins..."),
-            "epocs" => println!("scope ends."),
+            "scope" => i = parse_id_scope(v),
+            "epocs" => i = Id::new(IdType::Idepocs, "".to_string(), MemType::MemNotAMem),
             "var" => println!("variable..."),
             "in"  => println!("function input..."),
             "out" => println!("function output..."),
@@ -144,15 +144,32 @@ fn parse_code (code:String) -> (Op, Id) {
 }
 
 fn parse_id ( v: Vec<&str>, idt: IdType)-> Id {
-    let mut i: Id = Id::new(IdType::IdNotAnId, "foo".to_string(), MemType::MemNotAMem);
-    if 1 < v.len() {
-        println!("{:?}", v);
-        //match v[1] {
-            
-        //}
+    if 2 != v.len() {
+        println!("Error: identifier expects one parameter.");
+        return Id::new(IdType::IdNotAnId, "".to_string(), MemType::MemNotAMem);
     }
-    else {
-        println!("Error: identifier expects parameter.");
+    println!("{:?}", v);
+    //TODO: parse memory parameter!!
+    let i: Id = Id::new(idt, v[1].to_string(), MemType::MemNotAMem); //TODO: parse memtype!!
+    i
+}
+
+fn parse_id_use (v: Vec<&str>) -> Id {
+    if 2 != v.len() {
+        println!("Error: Identifier use expects one parameter");
+        return Id::new(IdType::IdNotAnId, "".to_string(), MemType::MemNotAMem);
     }
+    println!("{:?}", v); 
+    let i: Id = Id::new(IdType::Iduse, v[1].to_string(), MemType::MemNotAMem);
+    i
+}
+
+fn parse_id_scope (v: Vec<&str>) -> Id {
+    if 2 != v.len() {
+        println!("Error: Identifier scope expects one parameter");
+        return Id::new(IdType::IdNotAnId, "".to_string(), MemType::MemNotAMem);
+    }
+    println!("{:?}", v);
+    let i: Id = Id::new(IdType::Idscope, v[1].to_string(), MemType::MemNotAMem);
     i
 }
