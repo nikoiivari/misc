@@ -43,21 +43,62 @@ enum MemType {
     MemCacheRegs,
 }
 
+
+
 #[derive(Debug)]
 struct Id {
     t:IdType,
     param: String,
     m: MemType,
+    mpages: u16,
+    mregs: u8,
 }
 
 impl Id {
-    pub fn new(t:IdType, param:String, m:MemType) -> Self {
+    pub fn new(t:IdType, param:String, m:MemType, mpages:u16, mregs:u8) -> Self {
         Id {
             t: t,
             param: param,
             m: m,
+            mpages: mpages,
+            mregs: mregs,
+
         }
     }
+}
+
+#[derive(Debug)]
+enum VarType {
+    VarNotAVar,
+    VarVar,
+    VarIn,
+    VarOut,
+}
+
+#[derive(Debug)]
+enum PackType {
+    PackNotAPack,
+    PackPack,
+    PackEven,
+    PackOdd,
+}
+
+#[derive(Debug)]
+enum TypeType {
+    TypeNotAType,
+    TypeCapability,
+    TypeData,
+    TypeCode,
+}
+
+#[derive(Debug)]
+struct Var {
+    t: VarType,
+    param: String,
+    pt: PackType,
+    swizzles: u8,
+    size: u8,
+    tt: TypeType,    
 }
 
 //====
@@ -107,21 +148,21 @@ fn main ()
 fn parse_code (code:String) -> (Op, Id) {
     
     let _o: Op = Op::new(0x0, 0x0);
-    let mut i: Id = Id::new(IdType::IdNotAnId, "foo".to_string(), MemType::MemNotAMem);
+    let mut i: Id = Id::new(IdType::IdNotAnId, "foo".to_string(), MemType::MemNotAMem, 0, 0);
 
     let v: Vec<&str> = code.split(' ').collect(); // does this work with tabs?
     if 0 < v.len() {
         //println!("{:?}", v[0]);
         match v[0] {
-            "ask" => i = parse_id(v, IdType::Idask),
-            "req" => i = parse_id(v, IdType::Idreq),
+            "ask" => i = parse_id_mem(v, IdType::Idask),
+            "req" => i = parse_id_mem(v, IdType::Idreq),
             "use" => i = parse_id_use(v),
             "enum" => println!("enum begins..."),
             "mune" => println!("enum ends."),
             "struc" => println!("struc begins..."),
             "curts" => println!("struc ends."),
             "scope" => i = parse_id_scope(v),
-            "epocs" => i = Id::new(IdType::Idepocs, "".to_string(), MemType::MemNotAMem),
+            "epocs" => i = Id::new(IdType::Idepocs, "".to_string(), MemType::MemNotAMem, 0, 0),
             "var" => println!("variable..."),
             "in"  => println!("function input..."),
             "out" => println!("function output..."),
@@ -143,33 +184,46 @@ fn parse_code (code:String) -> (Op, Id) {
     (_o, i)
 }
 
-fn parse_id ( v: Vec<&str>, idt: IdType)-> Id {
+fn parse_id_mem ( v: Vec<&str>, idt: IdType)-> Id {
     if 2 != v.len() {
         println!("Error: identifier expects one parameter.");
-        return Id::new(IdType::IdNotAnId, "".to_string(), MemType::MemNotAMem);
+        return Id::new(IdType::IdNotAnId, "".to_string(), MemType::MemNotAMem, 0, 0);
     }
     println!("{:?}", v);
     //TODO: parse memory parameter!!
-    let i: Id = Id::new(idt, v[1].to_string(), MemType::MemNotAMem); //TODO: parse memtype!!
+    let i: Id = Id::new(idt, v[1].to_string(), MemType::MemNotAMem, 1, 1); //TODO: parse memory!!
     i
 }
 
 fn parse_id_use (v: Vec<&str>) -> Id {
     if 2 != v.len() {
         println!("Error: Identifier use expects one parameter");
-        return Id::new(IdType::IdNotAnId, "".to_string(), MemType::MemNotAMem);
+        return Id::new(IdType::IdNotAnId, "".to_string(), MemType::MemNotAMem, 0, 0);
     }
     println!("{:?}", v); 
-    let i: Id = Id::new(IdType::Iduse, v[1].to_string(), MemType::MemNotAMem);
+    let i: Id = Id::new(IdType::Iduse, v[1].to_string(), MemType::MemNotAMem, 0, 0);
     i
 }
 
 fn parse_id_scope (v: Vec<&str>) -> Id {
     if 2 != v.len() {
         println!("Error: Identifier scope expects one parameter");
-        return Id::new(IdType::IdNotAnId, "".to_string(), MemType::MemNotAMem);
+        return Id::new(IdType::IdNotAnId, "".to_string(), MemType::MemNotAMem, 0, 0);
     }
     println!("{:?}", v);
-    let i: Id = Id::new(IdType::Idscope, v[1].to_string(), MemType::MemNotAMem);
+    let i: Id = Id::new(IdType::Idscope, v[1].to_string(), MemType::MemNotAMem, 0, 0);
+    i
+}
+
+//parse_id_var...
+
+fn parse_id_fun (v: Vec<&str>) -> Id {
+    if 2 != v.len() {
+        println!("Error: Identifier fun expects two parameters");
+        return Id::new(IdType::IdNotAnId, "".to_string(), MemType::MemNotAMem, 0, 0);
+    }
+    println!("{:?}", v);
+    // TODO: actually parse fun parameters!!
+    let i: Id = Id::new(IdType::Idfun, v[1].to_string(), MemType::MemNotAMem, 0, 0);
     i
 }
