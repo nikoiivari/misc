@@ -34,6 +34,7 @@ enum IdType {
     Idnuf,
 }
 
+// ask, req
 #[derive(Debug)]
 enum MemType {
     MemNotAMem,
@@ -43,38 +44,7 @@ enum MemType {
     MemCacheRegs,
 }
 
-
-
-#[derive(Debug)]
-struct Id {
-    t:IdType,
-    param: String,
-    m: MemType,
-    mpages: u16,
-    mregs: u8,
-}
-
-impl Id {
-    pub fn new(t:IdType, param:String, m:MemType, mpages:u16, mregs:u8) -> Self {
-        Id {
-            t: t,
-            param: param,
-            m: m,
-            mpages: mpages,
-            mregs: mregs,
-
-        }
-    }
-}
-
-#[derive(Debug)]
-enum VarType {
-    VarNotAVar,
-    VarVar,
-    VarIn,
-    VarOut,
-}
-
+// var, in, out
 #[derive(Debug)]
 enum PackType {
     PackNotAPack,
@@ -91,35 +61,47 @@ enum TypeType {
     TypeUnsigned,
 }
 
+// All identifiers and their parameters
 #[derive(Debug)]
-struct Var {
-    t: VarType,
+struct Id {
+    it:IdType,
     param: String,
+    // ask, req
+    mt: MemType,
+    mpages: u16,
+    mregs: u8,
+    // var, in, out
     pt: PackType,
     swizzles: u8,
     size: u8,
-    tt: TypeType,    
+    tt: TypeType,
 }
 
-impl Var {
-    pub fn new(t:VarType, param:String, pt:PackType, swizzles:u8, size:u8, tt:TypeType) -> Self {
-        Var {
-            t: t,
+impl Id {
+    pub fn new(it: IdType, param: String) -> Self {
+        Id {
+            it: it,
             param: param,
-            pt: pt,
-            swizzles: swizzles,
-            size: size,
-            tt: tt,
+            // ask, req
+            mt: MemType::MemNotAMem,
+            mpages: 0x0,
+            mregs: 0x0,
+            // var, in, out
+            pt: PackType::PackNotAPack,
+            swizzles: 0x0,
+            size: 0x0,
+            tt: TypeType::TypeNotAType,
         }
     }
 }
-
 //====
 
 fn nand(ina:u64, inb:u64) -> u64
 {
     return !(ina & inb);
 }
+
+//====
 
 fn main ()
 {
@@ -161,11 +143,21 @@ fn main ()
 fn parse_code (code:String) -> (Op, Id) {
     
     let _o: Op = Op::new(0x0, 0x0);
-    let mut i: Id = Id::new(IdType::IdNotAnId, "".to_string(), MemType::MemNotAMem, 0, 0);
-    let mut _va: Var = Var::new(VarType::VarNotAVar, "".to_string(), PackType::PackNotAPack,
-                                0x0, 0x0, TypeType::TypeNotAType);
+    let mut i: Id = Id {
+        it: IdType::IdNotAnId,
+        param: "".to_string(),
+        // ask, req
+        mt: MemType::MemNotAMem,
+        mpages: 0x0,
+        mregs: 0x0,
+        // var, in, out
+        pt: PackType::PackNotAPack,
+        swizzles: 0x0,
+        size: 0x0,
+        tt: TypeType::TypeNotAType,
+    };
 
-    let v: Vec<&str> = code.split(' ').collect(); // does this work with tabs?
+    let v: Vec<&str> = code.split_whitespace().collect(); // does this work with tabs?
     if 0 < v.len() {
         //println!("{:?}", v[0]);
         match v[0] {
@@ -177,10 +169,10 @@ fn parse_code (code:String) -> (Op, Id) {
             "struc" => println!("struc begins..."),
             "curts" => println!("struc ends."),
             "scope" => i = parse_id_scope(v),
-            "epocs" => i = Id::new(IdType::Idepocs, "".to_string(), MemType::MemNotAMem, 0, 0),
-            "var" => (i, _va) = parse_id_var(v, IdType::Idvar),
-            "in"  => (i, _va) = parse_id_var(v, IdType::Idin),
-            "out" => (i, _va) = parse_id_var(v, IdType::Idout),
+            "epocs" => i.it = IdType::Idepocs,                       
+            "var" => i = parse_id_var(v, IdType::Idvar),
+            "in"  => i = parse_id_var(v, IdType::Idin),
+            "out" => i = parse_id_var(v, IdType::Idout),
             "fun" => println!("function declaration..."),
             "return" => println!("function returns before completion..."),
             "nuf" => println!("function declaration ends."),
@@ -202,60 +194,84 @@ fn parse_code (code:String) -> (Op, Id) {
 fn parse_id_mem (v: Vec<&str>, idt: IdType)-> Id {
     if 2 != v.len() {
         println!("Error: identifier expects one parameter.");
-        return Id::new(IdType::IdNotAnId, "".to_string(), MemType::MemNotAMem, 0, 0);
+        return Id::new(IdType::IdNotAnId, "".to_string());
     }
     println!("{:?}", v);
     //TODO: parse memory parameter!!
-    let i:Id = Id::new(idt, v[1].to_string(), MemType::MemNotAMem, 1, 1); //TODO: parse memory!!
+    let i:Id = Id::new(idt, v[1].to_string()); //TODO: parse memory!!
     i
 }
 
 fn parse_id_use (v: Vec<&str>) -> Id {
     if 2 != v.len() {
         println!("Error: Identifier use expects one parameter");
-        return Id::new(IdType::IdNotAnId, "".to_string(), MemType::MemNotAMem, 0, 0);
+        return Id::new(IdType::IdNotAnId, "".to_string());
     }
     println!("{:?}", v); 
-    let i:Id = Id::new(IdType::Iduse, v[1].to_string(), MemType::MemNotAMem, 0, 0);
+    let i:Id = Id::new(IdType::Iduse, v[1].to_string());
     i
 }
 
 fn parse_id_scope (v: Vec<&str>) -> Id {
     if 2 != v.len() {
         println!("Error: Identifier scope expects one parameter");
-        return Id::new(IdType::IdNotAnId, "".to_string(), MemType::MemNotAMem, 0, 0);
+        return Id::new(IdType::IdNotAnId, "".to_string());
     }
     println!("{:?}", v);
-    let i:Id = Id::new(IdType::Idscope, v[1].to_string(), MemType::MemNotAMem, 0, 0);
+    let i:Id = Id::new(IdType::Idscope, v[1].to_string());
     i
 }
 
-fn parse_id_var(v: Vec<&str>, idt: IdType) -> (Id, Var) {
-    println!("{:?}", v); //TODO: fix parsing of v!!!
+fn parse_id_var(v: Vec<&str>, idt: IdType) -> Id {
     if 6 != v.len() {
-        println!("Error: Identifier expects six parameters, and a colon.");
-        let ii:Id = Id::new(IdType::IdNotAnId, "".to_string(), MemType::MemNotAMem, 0, 0);
-        let vari:Var = Var::new(VarType::VarNotAVar, "".to_string(), PackType::PackNotAPack,
-                                0x0, 0x0, TypeType::TypeNotAType);
-        return (ii, vari)
-    }    
-    //println!("{:?}", v);
-    let ii:Id = Id::new(idt, v[1].to_string(), MemType::MemNotAMem, 0, 0);
-    let mut vari:Var = Var::new(VarType::VarNotAVar, v[1].to_string(), PackType::PackNotAPack,
-                                0x0, 0x0, TypeType::TypeNotAType);
+        println!("Error: Identifier expects five parameters.");
+        return Id::new(IdType::IdNotAnId, "".to_string());
+    }
+    let ctrimmed = v[1].trim_end_matches(':');
+    println!("{:?}", v);
+    let mut i:Id = Id::new(idt, ctrimmed.to_string());
+    
+    match v[2] {
+        "even" => i.pt = PackType::PackEven,
+        "odd"  => i.pt = PackType::PackOdd,
+        "pack" => i.pt = PackType::PackPack,
+        &_ => println!("Error: not a PackType."),
+    }
 
-    //TODO: Actually modify members of vari
+    // TODO: parse swizzle!!
+    //match v[3] {
 
-    (ii, vari)
+    //}
+
+    match v[4] {
+        "8byte" => i.size = 8,
+        "7byte" => i.size = 7,
+        "6byte" => i.size = 6,
+        "5byte" => i.size = 5,
+        "4byte" => i.size = 4,
+        "3byte" => i.size = 3,
+        "2byte" => i.size = 2,
+        "1byte" => i.size = 1,
+        &_ => println!("Error: not a legitimate size."),
+    }
+    
+    match v[5] {
+        "capability"    => i.tt = TypeType::TypeCapability,
+        "signed"        => i.tt = TypeType::TypeSigned,
+        "unsigned"      => i.tt = TypeType::TypeUnsigned,
+        &_ => println!("Error: not a TypeType."),
+    }
+    println!("{:?}", i);
+    i
 }
 
 fn parse_id_fun (v: Vec<&str>) -> Id {
     if 2 != v.len() {
         println!("Error: Identifier fun expects two parameters");
-        return Id::new(IdType::IdNotAnId, "".to_string(), MemType::MemNotAMem, 0, 0);
+        return Id::new(IdType::IdNotAnId, "".to_string());
     }
     println!("{:?}", v);
     // TODO: actually parse fun parameters!!
-    let i:Id = Id::new(IdType::Idfun, v[1].to_string(), MemType::MemNotAMem, 0, 0);
+    let i:Id = Id::new(IdType::Idfun, v[1].to_string());
     i
 }

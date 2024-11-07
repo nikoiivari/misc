@@ -13,16 +13,16 @@ use string          # does parsing of argv[] require this?
 scope main
     # Variable definitions in the scope of func main. These are similiar to labels,
     # and have a colon ':' after the variable name.
-    var accum   : even  .stuvwxyz   8byte   capability
-    var cache   : odd   .stuvwxyz   8byte   capability
-    var foo     : even  .stuv       4byte   unsigned
-    var bar     : pack      .wxyz   4byte   unsigned    # .wxyz gets packed into
-                                                        # the previous dword.
-                                                        # It will be even.
-    in argc     : odd   .stuvwxyz   8byte   signed
-    in argv[]   : even  .stuvwxyz   8byte   capability  # argv[] should use string?
+    var accum:  even  .stuvwxyz   8byte   capability
+    var cache:  odd   .stuvwxyz   8byte   capability
+    var foo:    even  .stuv       4byte   unsigned
+    var bar:    pack      .wxyz   4byte   unsigned    # .wxyz gets packed into
+                                                      # the previous dword.
+                                                      # It will be even.
+    in argc:    odd   .stuvwxyz   8byte   signed
+    in argv[]:  even  .stuvwxyz   8byte   capability  # argv[] should use string?
 
-    out status  : odd          .z   1byte   signed
+    out status: odd          .z   1byte   signed
 epocs
 
 # main is a label, but the fun keyword makes it a function label.
