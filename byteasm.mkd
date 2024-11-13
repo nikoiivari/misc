@@ -237,6 +237,11 @@ Using one's complement for signed integers gives us negative zero and positive z
 
 See: https://www.tutorialspoint.com/one-s-complement. Apparently you can get subtraction for the price of one NOT and two ADDs when carry bit is set, and two NOTs and one ADD when it isn't.
 
+The assembly language needs a way to do operator overloading. Since there is no discrete add
+instruction in the ISA, addition needs to happen using multiple micro-operations in the
+accumulator. The overloaded plus-character '+' can then be used to generate the sequence
+of micro-ops.
+
 
 ```
 @.stuv + 100
@@ -329,32 +334,6 @@ Prehaps Interrupts and Traps are .I and .T? What is .B?
 
 # General instruction format
 
-What fields are needed in each type of instruction?
-
-Full instruction has two parameters `destination` and `source`. For instance: 
-`destination + source`. So three fields are needed: destination, operation and source.
-Destination and source are capabilities. There are four types of cache capabilities:
-`$`, `$page:`, `$page:register`, `$page:register-range`. Likewise there are four accum
-capabilities: `@`, `@page:`, `@page:register`, `@page:register-range`. And then there
-are swizzles on top of those.
-
-- destination page1    12bits
-- destination reg1      8bits
-- destination page2    12bits
-- destination reg2      8bits
-- destination swizzles  8bits
-- source page1         12bits
-- source reg1           8bits
-- source page2         12bits
-- source reg2           8bits
-- source swizzles       8bits
-- opcode               14bits = 110bits in total
-
-How to pack these into instructions?
-
-65535 * 2048 = 134 Megabytes
- 4096 * 2048 =   8 Megabytes
-
 1byte mini instructions work on current range capability, so they don't need parameter
 fields. Opcode only. So there is a need for @-capability register and $-capability register.
 these capability registers need to hold the following
@@ -370,7 +349,7 @@ Capability header (n most significant bits):
 - page-range or register-range      1bit
 - reserved bit                      1bit  = 4bits
 
-- page subset mask (use with AND)   8bits 
+- range subset mask (use with AND)   8bits 
 
 - Use page divider in memory address calculations, so that it is not possible for a
   range to start at an odd address. Also the page divider will limit the starting
