@@ -344,16 +344,18 @@ these capability registers need to hold the following
 
 Capability header (n most significant bits):
 
+```
 - @ or $ type                       1bit
 - executable (for $-type only)      1bit
 - page-range or register-range      1bit
 - reserved bit                      1bit  = 4bits
+```
 
-- range subset mask (use with AND)   8bits 
+## Page subset mask
 
-- Use page divider in memory address calculations, so that it is not possible for a
-  range to start at an odd address. Also the page divider will limit the starting
-  address to a coarser granularity. TODO!!!
+Page subset mask is used in memory address calculations, so that it is not possible for a
+range to start at an odd address. Also the page divider will limit the starting
+address to a coarser granularity.
 
 (range_begin_address).st = (page address).st 
 (range_begin_address).u  = (register  AND page_subset_mask).u
@@ -370,6 +372,7 @@ maximum divider (mask = b00000000).
 
 This will zero out the lower bits to set the address at a reasonable location. See examples.
 
+```
 Examples: subset 2, addr 0  -- 0 AND b11111110 = 0
           subset 2, addr 1  -- 1 AND b11111110 = 0
           subset 2, addr 2  -- 2 AND b11111110 = 2
@@ -384,9 +387,11 @@ Examples: subset 8, addr 12 -- 12 AND b11111000 = 8
           subset 8, addr 14 -- 14 AND b11111000 = 8
           subset 8, addr 15 -- 15 AND b11111000 = 8
           subset 8, addr 16 -- 16 AND b11111000 = 16        
+```
 
 Alternate parameter names for subset:
 
+```
 subset  1 | off
 subset  2 | pairs
 subset  4 | quads
@@ -395,30 +400,31 @@ subset 16 | hexads
 subset 32
 subset 64
 subset 128
+```
 
 ## Page range capability
 
+```
+- subset            8bits
+- swizzles          8bits
 - firstpage        12bits
 - firstregister     8bits
 - lastpage         12bits
-- lastregister      8bits = 40bits total
+- lastregister      8bits = 56bits total
+```
 
 ## Register range capability
 
+```
+- subset            8bits
+- swizzles          8bits
 - page             12bits
 - firstregister     8bits
-- lastregister      8bits = 28bits total
+- lastregister      8bits = 44bits total
 
 
-range capability:
-
-- page1        12bits
-- page2        12bits
-- reg1          8bits
-- reg2          8bits = 40bits
-- swizzles      8bits = 48bits
-- sub-region1   8bits = 56bits
-- sub-region2   8bits = 64bits total
+- = 48bits total
+```
 
 - needs a bit to tell us if it is a @-capability, or a $-capability.
 - needs a bit to tell us if it is a [pg1:rg1...pg2:rg2] or a [pg1...pg2:rg1...rg2]
@@ -443,56 +449,82 @@ Turn page divider off:
 @subset 1
 ```
 
-# Varying size instructions, and packing them into 8byte doublewords
+# Instructions, and how they are packed into 8byte doublewords
 
-## 1byte mini instruction
+There are three types of instructions:
+- 64bit instruction to set @ and $ capability registers to point to certain memory ranges.
+- 8bit instructions that can execute in parallel, and can be trapped when undefined.
+- 8bit primitive instructions to do tasks on the swizzles of the accumulator.
+
+## 1byte mini instruction for parallel execution
 
 1byte mini instruction bits:
 
-|bit 6-7: |bit 0-5:                     |
+|bit 6-7:|| bit 0-5:               ||||||
 |----|----|----|----|----|----|----|----|
-| i.type  | opcode                      |
+| i.type || opcode                 ||||||
 
-The two most significant bits convey the instruction type. In this case 11b. The different
+
+### i.type field in the two most significant bits
+
+The two most significant bits convey the instruction type. The different
 posibilities for these bits are:
 
 | i.type       | Meaning                   |
 |--------------|---------------------------|
 | i.type = 11b | 1byte mini instruction    |
-| i.type = 10b | 2byte 16bit instruction   |
-| i.type = 01b | 6byte 48bit instruction   |
-| i.type = 00b | 8byte mega instruction    |
+| i.type = 10b | 8byte 64bit instruction   |
+| i.type = 01b | 8byte 64bit instruction   |
+| i.type = 00b | 1byte mini instruction    |
 
-The 6bit opcode field can specify opcode 0-63
+So we split the instruction types to four different types. Two 1byte mini instruction types,
+and two 8byte mega instruction types.
+
+The 6bit opcode field can specify the opcode 0-63
 
 | opcode  | Functionality                                                    |
 |---------|------------------------------------------------------------------|
 | 000000b | padding, can often be optimised out without wasting a full cycle |
 | 000001b | nop -- No Operation. spends 1 clock cycle                        |
-| 000010b | +, add -- Addition on the accum range...                         |
+| 000010b | ... some other instruction, perhaps undefined, and trapped.      |
+| ...     | ...                                                              |
 
-Many of the 1byte mini instructions work on accumulator ranges that have been previously
+One type of the 1byte mini instructions work on accumulator ranges that have been previously
 specified by an 8byte mega instruction. Mini instructions may not modify the current range
 capability, so that later mini instructions can also operate on that range.
 
-## 2byte 16bit instruction
-
-## 6byte 48bit instruction
-
-6byte instructions are packed into 8byte dword.
-They are paded on the left or the right side. In this case `i.type` is three bits.
-
-| i.type        | Meaning                                                   |
-|---------------|-----------------------------------------------------------|
-| i.type = 011b | 6byte instruction followed by two 1byte mini instructions |
-| i.type = 101b | 1byte 6byte 1byte makes total of 8byte                    |
-| i.type = 110b | 1byte, 1byte, 6byte makes total of 8byte                  |
-|---------------|-----------------------------------------------------------|
-| i.type = 001b | 6byte instruction followed by one 2byte instruction       |
-| i.type = 100b | 2byte instruction followed by 6byte instruction           |
-|---------------|-----------------------------------------------------------|
-| i.type = 111b | eight 1byte instructions makes an 8byte                   |
-| i.type = 010b |                                                           |
-| i.type = 000b | 8byte mega instruction                                    |
-
 ## 8byte mega instruction
+
+The most significant 8bits of a 64bit mega instruction are the same as in the 1byte
+mini-instruction. They specify i.type, and the six most significant bits of the opcode.
+
+8 most significant bits 56 to 63 (byte .s) of the 8byte mega instruction:
+
+
+|bit 62-63:|| bit 56-61:                   ||||||
+|-----|-----|-----|-----|-----|-----|-----|-----|
+| i.type   || opcode                       ||||||
+
+
+i.type has the same meaning as i.type for 1byte mini instructions.
+
+Bits from 48 to 55 (byte .t) are as follows:
+
+| bit 52-55:         |||| bit 48-51:         ||||
+|-----|-----|-----|-----|-----|-----|-----|-----|
+| sub-opcode         |||| capability header  ||||
+
+sub-opcode allows extending the opcode space for 64bit mega instructions.
+
+capability header is 4bits in size, and was explained in an earlier subsection.
+
+Bits 32 to 47 (two bytes .uv) are as follows:
+
+| bit 32-39: (.u)                        |||||||| bit 40-47: (.v)                        ||||||||
+|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
+| subset                                 |||||||| swizzles                               ||||||||
+
+subset is the page subset mask as explained in a separate section.
+
+swizzles are a bitfield where each bit corresponds to the swizzles .stuvwxyz
+
