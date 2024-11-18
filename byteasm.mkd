@@ -460,10 +460,9 @@ There are three types of instructions:
 
 1byte mini instruction bits:
 
-|bit 6-7:|| bit 0-5:               ||||||
+|bit 6-7: | bit 0-5:                    |
 |----|----|----|----|----|----|----|----|
-| i.type || opcode                 ||||||
-
+| i.type  | opcode                      |
 
 ### i.type field in the two most significant bits
 
@@ -473,8 +472,8 @@ posibilities for these bits are:
 | i.type       | Meaning                   |
 |--------------|---------------------------|
 | i.type = 11b | 1byte mini instruction    |
-| i.type = 10b | 8byte 64bit instruction   |
-| i.type = 01b | 8byte 64bit instruction   |
+| i.type = 10b | 8byte mega instruction    |
+| i.type = 01b | 8byte mega instruction    |
 | i.type = 00b | 1byte mini instruction    |
 
 So we split the instruction types to four different types. Two 1byte mini instruction types,
@@ -484,8 +483,8 @@ The 6bit opcode field can specify the opcode 0-63
 
 | opcode  | Functionality                                                    |
 |---------|------------------------------------------------------------------|
-| 000000b | padding, can often be optimised out without wasting a full cycle |
-| 000001b | nop -- No Operation. spends 1 clock cycle                        |
+| 000000b | nop -- No Operation. Might not need a full clock cycle           |
+| 000001b | ... some other instruction, perhaps undefined, and trapped.      |
 | 000010b | ... some other instruction, perhaps undefined, and trapped.      |
 | ...     | ...                                                              |
 
@@ -500,19 +499,21 @@ mini-instruction. They specify i.type, and the six most significant bits of the 
 
 8 most significant bits 56 to 63 (byte .s) of the 8byte mega instruction:
 
-
-|bit 62-63:|| bit 56-61:                   ||||||
+```
+|bit 62-63: | bit 56-61:                        |
 |-----|-----|-----|-----|-----|-----|-----|-----|
-| i.type   || opcode                       ||||||
-
+| i.type    | opcode                            |
+```
 
 i.type has the same meaning as i.type for 1byte mini instructions.
 
 Bits from 48 to 55 (byte .t) are as follows:
 
-| bit 52-55:         |||| bit 48-51:         ||||
+```
+| bit 52-55:            | bit 48-51:            |
 |-----|-----|-----|-----|-----|-----|-----|-----|
-| sub-opcode         |||| capability header  ||||
+| sub-opcode            | capability header     |
+```
 
 sub-opcode allows extending the opcode space for 64bit mega instructions.
 
@@ -520,9 +521,9 @@ capability header is 4bits in size, and was explained in an earlier subsection.
 
 Bits 32 to 47 (two bytes .uv) are as follows:
 
-| bit 32-39: (.u)                        |||||||| bit 40-47: (.v)                        ||||||||
+| bit 32-39: (.u)    ||||                    |||| bit 40-47: (.v)                        ||||||||
 |-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
-| subset                                 |||||||| swizzles                               ||||||||
+| subset             ||||                    |||| swizzles                               ||||||||
 
 subset is the page subset mask as explained in a separate section.
 
