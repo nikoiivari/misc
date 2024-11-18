@@ -347,9 +347,11 @@ Capability header (n most significant bits):
 ```
 - @ or $ type                       1bit
 - executable (for $-type only)      1bit
-- page-range or register-range      1bit
-- reserved bit                      1bit  = 4bits
+- page-range or register-range      1bit  = 3 bits
 ```
+TODO: Capabilities are stored in the zero-page for fast indexing by the instruction parameters.
+Therefore capabilities themselves can be 64bits wide.
+
 
 ## Page subset mask
 
@@ -401,6 +403,8 @@ subset 32
 subset 64
 subset 128
 ```
+You should be able to change the page subset mask without having to use priviledged instructions.
+
 
 ## Page range capability
 
@@ -421,9 +425,6 @@ subset 128
 - page             12bits
 - firstregister     8bits
 - lastregister      8bits = 44bits total
-
-
-- = 48bits total
 ```
 
 - needs a bit to tell us if it is a @-capability, or a $-capability.
@@ -451,18 +452,22 @@ Turn page divider off:
 
 # Instructions, and how they are packed into 8byte doublewords
 
-There are three types of instructions:
-- 64bit instruction to set @ and $ capability registers to point to certain memory ranges.
-- 8bit instructions that can execute in parallel, and can be trapped when undefined.
-- 8bit primitive instructions to do tasks on the swizzles of the accumulator.
+All instructions are 1byte in size, but may be followed by zero to three parameter bytes.
+The p.type field in the instruction byte reveals how many parameter bytes follow.
 
-## 1byte mini instruction for parallel execution
+There are three types of instructions:
+- instruction to set 
+- primitive instructions to do tasks on the swizzles of the accumulator.
+
+Eight instructions execute in parallel. Undefined instructions can be trapped.
+
+## 1byte instruction for parallel execution
 
 1byte mini instruction bits:
 ```
 | bit 6-7:| bit 0-5:                    |
 |----|----|----|----|----|----|----|----|
-| i.type  | opcode                      |
+| p.type  | opcode                      |
 ```
 
 ### i.type field in the two most significant bits
@@ -470,15 +475,16 @@ There are three types of instructions:
 The two most significant bits convey the instruction type. The different
 posibilities for these bits are:
 
-| i.type       | Meaning                   |
-|--------------|---------------------------|
-| i.type = 11b | 1byte mini instruction    |
-| i.type = 10b | 8byte mega instruction    |
-| i.type = 01b | 8byte mega instruction    |
-| i.type = 00b | 1byte mini instruction    |
+| p.type       | Meaning                      |
+|--------------|------------------------------|
+| p.type = 11b | Three parameter bytes follow |
+| p.type = 10b | Two parameter bytes follow * |
+| p.type = 01b | One parameter byte follows   |
+| p.type = 00b | No parameter bytes follow    |
 
-So we split the instruction types to four different types. Two 1byte mini instruction types,
-and two 8byte mega instruction types.
+*) Three bytes total may be harder to process in a way that keeps the instruction lanes aligned.
+   Then again sequences of 00b and 01b + parameter byte will also go into misalignment. Perhaps
+   the instruction lanes don't need to be aligned?
 
 The 6bit opcode field can specify the opcode 0-63
 
@@ -488,46 +494,4 @@ The 6bit opcode field can specify the opcode 0-63
 | 000001b | ... some other instruction, perhaps undefined, and trapped.      |
 | 000010b | ... some other instruction, perhaps undefined, and trapped.      |
 | ...     | ...                                                              |
-
-One type of the 1byte mini instructions work on accumulator ranges that have been previously
-specified by an 8byte mega instruction. Mini instructions may not modify the current range
-capability, so that later mini instructions can also operate on that range.
-
-## 8byte mega instruction
-
-The most significant 8bits of a 64bit mega instruction are the same as in the 1byte
-mini-instruction. They specify i.type, and the six most significant bits of the opcode.
-
-8 most significant bits 56 to 63 (byte .s) of the 8byte mega instruction:
-
-```
-|bit 62-63: | bit 56-61:                        |
-|-----|-----|-----|-----|-----|-----|-----|-----|
-| i.type    | opcode                            |
-```
-
-i.type has the same meaning as i.type for 1byte mini instructions.
-
-Bits from 48 to 55 (byte .t) are as follows:
-
-```
-| bit 52-55:            | bit 48-51:            |
-|-----|-----|-----|-----|-----|-----|-----|-----|
-| sub-opcode            | capability header     |
-```
-
-sub-opcode allows extending the opcode space for 64bit mega instructions.
-
-capability header is 4bits in size, and was explained in an earlier subsection.
-
-Bits 32 to 47 (two bytes .uv) are as follows:
-```
-| bit 32-39: (.u)                               | bit 40-47: (.v)                               |
-|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
-| subset                                        | swizzles                                      |
-```
-
-subset is the page subset mask as explained in a separate section.
-
-swizzles are a bitfield where each bit corresponds to the swizzles .stuvwxyz
-
+| xxxxxxb |  |
