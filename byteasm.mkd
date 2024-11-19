@@ -143,8 +143,17 @@ memory areas are always continous -- no memory mapping of discontinous pages is 
 The regular assignment instruction is the equal-sign: `=`.
 
 ```
-var = other_var     # move data from other_var to var
+var = other_var     # move capability from other_var to var???
 
+```
+FIXME: clear this ambiguity:
+BTW: Differentiate between setting the capability to a range, and moving the content of the
+range using the swizzles or square brackets '[]'. eg.:
+
+```
+@ = temp_var1               # assign capability for temp_var1 to @
+@.stuv = temp_var2.stuv     # move contents of temp_var2.stuv to @.stuv
+@.wxyz = temp_var3[2].stuv  # move contents of temp_var3[2].stuv to @.wxyz
 ```
 
 The assignment instruction also has a variant that can add gaps between registers in the
@@ -231,52 +240,39 @@ var = @[:0...15]    # The actual data in @[:0...15] is moved to var. var is [:16
 ```
 
 
-## add constant to accumulator, then add from memory, using one's complement addition.
+## addition using one's complement integers.
 
 Using one's complement for signed integers gives us negative zero and positive zero.
 
-See: https://www.tutorialspoint.com/one-s-complement. Apparently you can get subtraction for the price of one NOT and two ADDs when carry bit is set, and two NOTs and one ADD when it isn't.
+See: https://www.tutorialspoint.com/one-s-complement. Apparently you can get subtraction for
+the price of one NOT and two ADDs when carry bit is set, and two NOTs and one ADD when it isn't.
 
 The assembly language needs a way to do operator overloading. Since there is no discrete add
 instruction in the ISA, addition needs to happen using multiple micro-operations in the
 accumulator. The overloaded plus-character '+' can then be used to generate the sequence
 of micro-ops.
 
+Possible sugar coated syntax:
 
 ```
 @.stuv + 100
 @.stuv + cap.stuv
 ```
 
-## subtract from accumulator
-
-```
-.stuv - 100
-.stuv - cap.wxyz
-```
-
-## use swizzle to do subtraction on 16bit integers in accumulator
-
-```
-.stuvwxyz = cap2.stuvwxyz           # load 64bits (8byte) from memory to accumulator
-= cap2.stuvwxyz                     # the exact same instruction as previous line
-= cap2                              # the exact same instruction as previous line
-
-.uv = .wx - yz                      # subtract .yz from .wx, store result in .uv
-
-.st - .uv                           # subtract .uv from .st, store result in .st
-.st = .st - .uv                     # the exact same instruction as the previous line,
-                                    # but redundant verbose syntax
-
-.uvwxyz = 0.uvwxyz                  # move zero register into .uvwxyz of accumulator,
-                                    # keep .st of accumulator unchanged
-
-cap2.stuvwxyz = .stuvwxyz           # store 64bits (8byte) to memory from accumulator
-cap2.stuvwxyz =                     # the exact same instruction as previous line
-cap2 =                              # the exact same instruction as previous line
-```
-
 # Branching or predicates?
+
+## .NOBITZUC is the status register
+
+- .N Set if the result of an operation is a negative integer
+- .O Set on overflow
+- .B Batch ops for asynchronous execution?
+- .I Interrupt?
+- .T Trap, other than undefined instruction.
+- .Z Set if the result of an operation is a zero. Also .N is set if zero is negative.
+- .U Undefined instruction?
+- .C Carry flag
+
+Prehaps Interrupts and Traps are .I and .T? What is .B? .B is a Batch of ops.
 
 ## jump based on byte-swizzle specific carry-flag
 
@@ -319,19 +315,6 @@ onzero .s cap_code2                 # branch on zero flag set for .s
 onoverflow .s cap_code3
 ```
 
-## .NOBITZUC is the status register
-
-- .N Set if the result of an operation is a negative integer
-- .O Set on overflow
-- .B 
-- .I Interrupt?
-- .T
-- .Z Set if the result of an operation is a zero. Also .N is set if zero is negative.
-- .U Undefined instruction?
-- .C Carry flag
-
-Prehaps Interrupts and Traps are .I and .T? What is .B?
-
 # General instruction format
 
 1byte mini instructions work on current range capability, so they don't need parameter
@@ -350,7 +333,10 @@ Capability header (n most significant bits):
 - page-range or register-range      1bit  = 3 bits
 ```
 TODO: Capabilities are stored in the zero-page for fast indexing by the instruction parameters.
-Therefore capabilities themselves can be 64bits wide.
+Therefore capabilities themselves can be 64bits wide. When capabilities are not needed to be
+quickly accessible (like when the process is not currently being executed) then capabilities
+can be also stored anywhere in the cache. They will retain their capability bits when stored
+anywhere in the cache.
 
 
 ## Page subset mask
@@ -436,7 +422,7 @@ each of page1 to page2.
 
 Continous page range capability
 
-The sub-region is set as a divider of page-size. It applies to all pages in a range.
+The subset is set as a number of consecutive registers. It applies to all pages in a range.
 
 Use the following to set sub regions to 4 registers each:
 
@@ -444,7 +430,7 @@ Use the following to set sub regions to 4 registers each:
 @subset 4
 ```
 
-Turn page divider off:
+Turn page subsetting off:
 
 ```
 @subset 1
@@ -455,9 +441,11 @@ Turn page divider off:
 All instructions are 1byte in size, but may be followed by zero to three parameter bytes.
 The p.type field in the instruction byte reveals how many parameter bytes follow.
 
-There are three types of instructions:
-- instruction to set 
-- primitive instructions to do tasks on the swizzles of the accumulator.
+There are several types of instructions:
+- instruction to set the 4 register pcb in the zero-page when switching to another process.
+- instructions
+- primitive instructions to do copy ops on the swizzles of the cache.
+- primitive instructions to do logic gate ops on the swizzles of the accumulator.
 
 Eight instructions execute in parallel. Undefined instructions can be trapped.
 
