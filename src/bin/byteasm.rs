@@ -6,15 +6,13 @@ use std::io::Read;
 
 #[derive(Debug)]
 struct Op {
-    opcode:u16,
-      dest:u32,
+    opcode:u8,
 }
 
 impl Op {
-    pub fn new(opcode:u16, dest:u32) -> Self {
+    pub fn new(opcode:u8) -> Self {
         Op {
             opcode: opcode,
-              dest: dest,
         }
     }
 }
@@ -142,7 +140,7 @@ fn main ()
 // parse_code -- generate Op struct for code statement
 fn parse_code (code:String) -> (Op, Id) {
     
-    let _o: Op = Op::new(0x0, 0x0);
+    let _o: Op = Op::new(0x0);
     let mut i: Id = Id {
         it: IdType::IdNotAnId,
         param: "".to_string(),
@@ -173,9 +171,9 @@ fn parse_code (code:String) -> (Op, Id) {
             "var" => i = parse_id_var(v, IdType::Idvar),
             "in"  => i = parse_id_var(v, IdType::Idin),
             "out" => i = parse_id_var(v, IdType::Idout),
-            "fun" => println!("function declaration..."),
+            "fun" => i = parse_id_fun(v),
             "return" => println!("function returns before completion..."),
-            "nuf" => println!("function declaration ends."),
+            "nuf" => i = parse_id_nuf(v),
             "case" => println!("case sth..."),
             "esac" => println!("case ends."),
             "fit" => println!("fit sth..."),
@@ -266,12 +264,23 @@ fn parse_id_var(v: Vec<&str>, idt: IdType) -> Id {
 }
 
 fn parse_id_fun (v: Vec<&str>) -> Id {
-    if 2 != v.len() {
-        println!("Error: Identifier fun expects two parameters");
-        return Id::new(IdType::IdNotAnId, "".to_string());
-    }
     println!("{:?}", v);
-    // TODO: actually parse fun parameters!!
+    // TODO: check actual number of function parameters inside tuple    
+    // TODO: actually parse fun parameters!! Now builds fun without initializing parameters.
+
     let i:Id = Id::new(IdType::Idfun, v[1].to_string());
+    println!("{:?}", i);
     i
 }
+
+fn parse_id_nuf (v: Vec<&str>) -> Id {
+    println!("{:?}", v);
+    // TODO: needs name of fun from fun stack!!!
+    // TODO: actually parse return values inside tuple!!!
+    let i:Id = Id::new(IdType::Idnuf, "fun name goes here!!!".to_string());
+    println!("{:?}", i);
+    i
+}
+
+//TODO: actually parse tuple!!
+//fn parse_id_tuple () -> Id {}

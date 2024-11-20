@@ -18,6 +18,22 @@ e.dup.o
 eo.dup.eo
 e.rol.o   ?
 
+Perhaps like this instead:
+
+```
+# In the .s column nand takes negated inputs. In the .t column nor takes a duplicated input.
+# The .t column then gets rewinded (?) back to the previous even address from where the nor
+# takes its input. (Or maybe change the funcionality of dup?...)
+
+.s        ; .t        ; .u      ; .v      ; .w      ; .x      ; .y      ; .z
+not.in    ; dup.in    ; rol     ; rol     ; nop     ; nop     ; nop     ; nop
+not.in    ; rewind?   ; rol     ; rol     ; nop     ; nop     ; nop     ; nop
+nand.in   ; nor.in    ; rol     ; rol     ; nop     ; nop     ; nop     ; nop
+nand.in   ; nor.in    ; rol     ; rol     ; nop     ; nop     ; nop     ; nop
+nand.out  ; nor.out   ; rol     ; rol     ; nop     ; nop     ; nop     ; nop
+                                          # perhaps trailing nops are not really needed.
+```
+
 - Needs an instruction to invert inputs for NAND and NOR easily. Maybe a variant of NOT?
   So eo.not.eo does this?
 
@@ -147,7 +163,7 @@ var = other_var     # move capability from other_var to var???
 
 ```
 FIXME: clear this ambiguity:
-BTW: Differentiate between setting the capability to a range, and moving the content of the
+Differentiate between setting the capability to a range, and moving the content of the
 range using the swizzles or square brackets '[]'. eg.:
 
 ```
@@ -441,11 +457,18 @@ Turn page subsetting off:
 All instructions are 1byte in size, but may be followed by zero to three parameter bytes.
 The p.type field in the instruction byte reveals how many parameter bytes follow.
 
-There are several types of instructions:
+There are several types of primitive instructions:
 - instruction to set the 4 register pcb in the zero-page when switching to another process.
 - instructions
-- primitive instructions to do copy ops on the swizzles of the cache.
-- primitive instructions to do logic gate ops on the swizzles of the accumulator.
+
+- instructions to do copy ops from cache, to cache.
+- instructions to do copy ops from cache, to accumulator.
+- instructions to do copy ops from accumulator, to cache.
+- should we have ops to do copies from accumulator to accumulator?
+
+- instructions to do logic gate ops on the swizzles of the accumulator.
+
+- instructions to increment and decrement nibbles with mandatory NibbleMuncher extension.
 
 Eight instructions execute in parallel. Undefined instructions can be trapped.
 
