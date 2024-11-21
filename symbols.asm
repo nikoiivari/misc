@@ -6,7 +6,7 @@ req @[4:]       # require a minimum of four pages of accumulator to run
 req $[1/4:]     # require 1/4th of a page of cache to run (256/4 = 64)
 
 # Link in functions from other files or libraries
-# use thingamagadget.asm
+# use thingamagadget
 use types           # what would the code look like without types?
 use string          # does parsing of argv[] require this?
 

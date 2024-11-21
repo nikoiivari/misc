@@ -18,6 +18,7 @@ impl Op {
 }
 
 #[derive(Debug)]
+#[derive(PartialEq)]
 enum IdType {
     IdNotAnId,
     Idask,
@@ -73,6 +74,8 @@ struct Id {
     swizzles: u8,
     size: u8,
     tt: TypeType,
+    // fun parameters here
+    // ...
 }
 
 impl Id {
@@ -92,17 +95,21 @@ impl Id {
         }
     }
 }
+
 //====
 
+//====
 fn nand(ina:u64, inb:u64) -> u64
 {
     return !(ina & inb);
 }
-
 //====
 
 fn main ()
 {
+    // Vector of Ids
+    let mut ids: Vec<Id> = vec![];
+    let mut funstack: Vec<u16> = vec![];
     
     //commandline args
     let args: Vec<String> = env::args().collect();
@@ -129,16 +136,26 @@ fn main ()
 
             // parse instruction
             if "" != code {
-                let _o:Op; let _i:Id;
-                (_o, _i) = parse_code(code);
+                let _o:Op; let i:Id;
+                (_o, i) = parse_code(code, &ids, &funstack);
                 //println!("{:?}, {:?}", o, i);
+                if IdType::Idfun == i.it {                    
+                    ids.push(i);
+                    let funindex:u16 = (ids.len() - 1) as u16;
+                    funstack.push(funindex);
+                } else if IdType::Idnuf == i.it {
+                    ids.push(i);
+                    funstack.pop();
+                } else {
+                    ids.push(i);
+                }
             } // else an empty code; ignore empty code
         }
     }
 }
 
 // parse_code -- generate Op struct for code statement
-fn parse_code (code:String) -> (Op, Id) {
+fn parse_code (code:String, ids:&Vec<Id>, funstack:&Vec<u16>) -> (Op, Id) {
     
     let _o: Op = Op::new(0x0);
     let mut i: Id = Id {
@@ -173,7 +190,7 @@ fn parse_code (code:String) -> (Op, Id) {
             "out" => i = parse_id_var(v, IdType::Idout),
             "fun" => i = parse_id_fun(v),
             "return" => println!("function returns before completion..."),
-            "nuf" => i = parse_id_nuf(v),
+            "nuf" => i = parse_id_nuf(v, ids, funstack),
             "case" => println!("case sth..."),
             "esac" => println!("case ends."),
             "fit" => println!("fit sth..."),
@@ -259,11 +276,11 @@ fn parse_id_var(v: Vec<&str>, idt: IdType) -> Id {
         "unsigned"      => i.tt = TypeType::TypeUnsigned,
         &_ => println!("Error: not a TypeType."),
     }
-    println!("{:?}", i);
+    //println!("{:?}", i);
     i
 }
 
-fn parse_id_fun (v: Vec<&str>) -> Id {
+fn parse_id_fun (v:Vec<&str>) -> Id {
     println!("{:?}", v);
     // TODO: check actual number of function parameters inside tuple    
     // TODO: actually parse fun parameters!! Now builds fun without initializing parameters.
@@ -273,14 +290,17 @@ fn parse_id_fun (v: Vec<&str>) -> Id {
     i
 }
 
-fn parse_id_nuf (v: Vec<&str>) -> Id {
+fn parse_id_nuf (v:Vec<&str>, ids:&Vec<Id>, funstack:&Vec<u16>) -> Id {
     println!("{:?}", v);
     // TODO: needs name of fun from fun stack!!!
     // TODO: actually parse return values inside tuple!!!
-    let i:Id = Id::new(IdType::Idnuf, "fun name goes here!!!".to_string());
+    
+    let funindex = funstack.len() - 1;
+    let i:Id = Id::new(IdType::Idnuf, ids[(funstack[funindex]) as usize].param.to_string());
     println!("{:?}", i);
     i
 }
 
 //TODO: actually parse tuple!!
+//TODO: parsing tuples is needed for taking fun parameters
 //fn parse_id_tuple () -> Id {}

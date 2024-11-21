@@ -23,7 +23,7 @@ Perhaps like this instead:
 ```
 # In the .s column nand takes negated inputs. In the .t column nor takes a duplicated input.
 # The .t column then gets rewinded (?) back to the previous even address from where the nor
-# takes its input. (Or maybe change the funcionality of dup?...)
+# takes its input. (Or maybe change the functionality of dup?...)
 
 .s        ; .t        ; .u      ; .v      ; .w      ; .x      ; .y      ; .z
 not.in    ; dup.in    ; rol     ; rol     ; nop     ; nop     ; nop     ; nop
