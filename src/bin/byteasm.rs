@@ -74,7 +74,6 @@ struct Id {
     swizzles: u8,
     size: u8,
     tt: TypeType,
-    // fun parameters here
     // ...
 }
 
@@ -292,7 +291,6 @@ fn parse_id_fun (v:Vec<&str>) -> Id {
 
 fn parse_id_nuf (v:Vec<&str>, ids:&Vec<Id>, funstack:&Vec<u16>) -> Id {
     println!("{:?}", v);
-    // TODO: needs name of fun from fun stack!!!
     // TODO: actually parse return values inside tuple!!!
     
     let funindex = funstack.len() - 1;
