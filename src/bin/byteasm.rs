@@ -275,7 +275,7 @@ fn parse_id_var(v: Vec<&str>, idt: IdType) -> Id {
         "unsigned"      => i.tt = TypeType::TypeUnsigned,
         &_ => println!("Error: not a TypeType."),
     }
-    //println!("{:?}", i);
+    println!("{:?}", i);
     i
 }
 
