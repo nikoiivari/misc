@@ -3,6 +3,7 @@
 use std::env;
 use std::fs::File;
 use std::io::Read;
+use std::io::Write;
 
 #[derive(Debug)]
 struct Op {
@@ -110,12 +111,14 @@ fn main ()
     let mut ids: Vec<Id> = vec![];
     let mut funstack: Vec<u16> = vec![];
     
+    let mut infilepath: &str = "bin.out";
+    
     //commandline args
     let args: Vec<String> = env::args().collect();
     if 1 < args.len()
     {
         //println!("{:?}", args);
-        let infilepath = &args[1];
+        infilepath = &args[1];
         let mut infile = File::open(infilepath).unwrap();
 
         let mut s: String = Default::default();
@@ -151,6 +154,15 @@ fn main ()
             } // else an empty code; ignore empty code
         }
     }
+
+    // ==== Write executable file ====
+    
+    // strip file extension from infilepath
+    let pathparts: Vec<&str> = infilepath.split('.').collect();
+    let outfilepath = pathparts[0];
+    println!("Writing executable: {:?}", outfilepath);
+    let mut outfile = File::create(outfilepath).unwrap();
+    outfile.write(b"foo").unwrap();
 }
 
 // parse_code -- generate Op struct for code statement
@@ -302,3 +314,13 @@ fn parse_id_nuf (v:Vec<&str>, ids:&Vec<Id>, funstack:&Vec<u16>) -> Id {
 //TODO: actually parse tuple!!
 //TODO: parsing tuples is needed for taking fun parameters
 //fn parse_id_tuple () -> Id {}
+
+
+//==== Writing the executable ====
+
+fn write_exe_header () {
+    // EXE MAGIC
+    // Code area size
+    // Data area size
+    
+}
