@@ -159,7 +159,7 @@ fn main ()
 
     // ==== Write executable file ====
 
-    write_exe_header(&mut ob);
+    write_exe_header(&mut ob, 0x11223344);
     
     // strip file extension from infilepath
     let pathparts: Vec<&str> = infilepath.split('.').collect();
@@ -323,16 +323,16 @@ fn parse_id_nuf (v:Vec<&str>, ids:&Vec<Id>, funstack:&Vec<u16>) -> Id {
 
 //==== Writing the executable ====
 
-fn write_exe_header (ob: &mut Vec<u8>) {
+fn write_exe_header (ob: &mut Vec<u8>, codesize: u32) {
     // EXE MAGIC
     ob.push(0x45);
     ob.push(0x58);
     ob.push(0x45);
     ob.push(0x0);
-    ob.push(0x0);
-    ob.push(0x0);
-    ob.push(0x0);
-    ob.push(0x0);
+    ob.push((codesize >> 24) as u8);
+    ob.push(((codesize & 0b00000000111111110000000000000000) >> 16) as u8);
+    ob.push(((codesize & 0b00000000000000001111111100000000) >> 8) as u8);
+    ob.push(((codesize & 0b00000000000000000000000011111111)) as u8);
     // Code area size
     // Data area size    
 }
