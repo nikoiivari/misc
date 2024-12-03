@@ -112,6 +112,8 @@ fn main ()
     let mut funstack: Vec<u16> = vec![];
     
     let mut infilepath: &str = "bin.out";
+
+    let mut ob = Vec::<u8>::new(); //Out buffer ob
     
     //commandline args
     let args: Vec<String> = env::args().collect();
@@ -156,13 +158,16 @@ fn main ()
     }
 
     // ==== Write executable file ====
+
+    write_exe_header(&mut ob);
     
     // strip file extension from infilepath
     let pathparts: Vec<&str> = infilepath.split('.').collect();
     let outfilepath = pathparts[0];
-    println!("Writing executable: {:?}", outfilepath);
-    let mut outfile = File::create(outfilepath).unwrap();
-    outfile.write(b"foo").unwrap();
+    let outfileext = outfilepath.to_owned() + ".exe";
+    println!("Writing executable: {:?}", outfileext);
+    let mut outfile = File::create(outfileext).unwrap();
+    outfile.write(&ob).unwrap();
 }
 
 // parse_code -- generate Op struct for code statement
@@ -318,9 +323,16 @@ fn parse_id_nuf (v:Vec<&str>, ids:&Vec<Id>, funstack:&Vec<u16>) -> Id {
 
 //==== Writing the executable ====
 
-fn write_exe_header () {
+fn write_exe_header (ob: &mut Vec<u8>) {
     // EXE MAGIC
+    ob.push(0x45);
+    ob.push(0x58);
+    ob.push(0x45);
+    ob.push(0x0);
+    ob.push(0x0);
+    ob.push(0x0);
+    ob.push(0x0);
+    ob.push(0x0);
     // Code area size
-    // Data area size
-    
+    // Data area size    
 }

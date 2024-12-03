@@ -22,6 +22,6 @@ fn main () {
     
     // File loading and setup that an OS would do.
     // TODO: get filename from commandline!!!
-    let _buffer: Vec<u8> = fs::read("symbols.asm").unwrap();
+    let _buffer: Vec<u8> = fs::read("symbols.exe").unwrap();
 
 }
