@@ -26,11 +26,12 @@ fn main () {
     let mut codesize:u32 = buffer[7] as u32; //lowest byte
     let cs2b: u32 = buffer[6] as u32;
     let cs3b: u32 = buffer[5] as u32;
-    println!("{:?}", codesize);
-    codesize = codesize & (cs2b << 8);
-    println!("{:?}", codesize);
-    codesize = codesize & (cs3b << 16); // 24bits of codesize
-    println!("{:?}", codesize);
+    println!("{:x}", codesize);
+    println!("{:x}", cs2b);
+    println!("{:x}", cs3b);
+    codesize = codesize | (cs2b << 8);
+    println!("{:x}", codesize);
+    codesize = codesize | (cs3b << 16); // 24bits of codesize
+    println!("{:x}", codesize);
     // Put code into cache registers
-    //TODO: codesize is broken. fix codesize.
 }
