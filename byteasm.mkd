@@ -413,10 +413,10 @@ You should be able to change the page subset mask without having to use priviled
 ```
 - subset            8bits
 - swizzles          8bits
-- firstpage        12bits
+- firstpage        16bits
 - firstregister     8bits
-- lastpage         12bits
-- lastregister      8bits = 56bits total
+- lastpage         16bits
+- lastregister      8bits = 64bits total
 ```
 
 ## Register range capability
@@ -424,9 +424,9 @@ You should be able to change the page subset mask without having to use priviled
 ```
 - subset            8bits
 - swizzles          8bits
-- page             12bits
+- page             16bits
 - firstregister     8bits
-- lastregister      8bits = 44bits total
+- lastregister      8bits = 48bits total
 ```
 
 - needs a bit to tell us if it is a @-capability, or a $-capability.
