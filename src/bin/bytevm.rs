@@ -14,24 +14,32 @@ struct Reg {
 
 fn main () {
     // Cache of 4096 registers. (16 pages of 256 each). ~32KB cache
-    let mut _cache: [Reg; 4096];
+    let mut cache: [Reg; 4096] = Reg {wbr: false, cap: false, bits: 0};
 
     // Accum of 4096 registers. (16 pages of 256 each). ~32KB accum
     let mut _accum: [Reg; 4096];
 
     
     // File loading and setup that an OS would do.
+    let offset = 16; //16 registers offset just sake of example.
     // TODO: get filename from commandline!!!
     let buffer: Vec<u8> = fs::read("symbols.exe").unwrap();
     let mut codesize:u32 = buffer[7] as u32; //lowest byte
     let cs2b: u32 = buffer[6] as u32;
     let cs3b: u32 = buffer[5] as u32;
-    println!("{:x}", codesize);
-    println!("{:x}", cs2b);
-    println!("{:x}", cs3b);
+    //println!("{:x}", codesize);
+    //println!("{:x}", cs2b);
+    //println!("{:x}", cs3b);
     codesize = codesize | (cs2b << 8);
-    println!("{:x}", codesize);
+    //println!("{:x}", codesize);
     codesize = codesize | (cs3b << 16); // 24bits of codesize
     println!("{:x}", codesize);
-    // Put code into cache registers
+    
+    // Put code into cache registers. Start from offset?
+    for i in offset..codesize {
+        cache[i as usize].wbr = false;
+        cache[i as usize].cap = false;
+        // continue tomorrow...
+        //cache[i].bits = 
+    }
 }

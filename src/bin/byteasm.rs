@@ -329,10 +329,11 @@ fn write_exe_header (ob: &mut Vec<u8>, codesize: u32) {
     ob.push(0x58);
     ob.push(0x45);
     ob.push(0x0);
+    // Code area size. Actually only uses lowest 24bits
     ob.push((codesize >> 24) as u8);
     ob.push(((codesize & 0b00000000111111110000000000000000) >> 16) as u8);
     ob.push(((codesize & 0b00000000000000001111111100000000) >> 8) as u8);
     ob.push(((codesize & 0b00000000000000000000000011111111)) as u8);
-    // Code area size
-    // Data area size    
+    
+    // Data area size?
 }
