@@ -159,7 +159,7 @@ fn main ()
 
     // ==== Write executable file ====
 
-    write_exe_header(&mut ob, 0x11223344);
+    write_exe_header(&mut ob, 0x00000003);
     
     // strip file extension from infilepath
     let pathparts: Vec<&str> = infilepath.split('.').collect();
