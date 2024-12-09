@@ -505,4 +505,9 @@ The 6bit opcode field can specify the opcode 0-63
 | 000001b | ... some other instruction, perhaps undefined, and trapped.      |
 | 000010b | ... some other instruction, perhaps undefined, and trapped.      |
 | ...     | ...                                                              |
-| xxxxxxb |  |
+| 011110b | 11b three params (0xde) --  |
+| ...     |                   |
+| 101101b | 10b two params (0xad) -- |
+| 111110b | 10b two params (0xbe) -- |
+| 101111b | 11b three params (0xef) -- |
+
