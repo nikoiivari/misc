@@ -489,25 +489,40 @@ posibilities for these bits are:
 | p.type       | Meaning                      |
 |--------------|------------------------------|
 | p.type = 11b | Three parameter bytes follow |
-| p.type = 10b | Two parameter bytes follow * |
+| p.type = 10b | Two parameter bytes follow   |
 | p.type = 01b | One parameter byte follows   |
 | p.type = 00b | No parameter bytes follow    |
 
-*) Three bytes total may be harder to process in a way that keeps the instruction lanes aligned.
-   Then again sequences of 00b and 01b + parameter byte will also go into misalignment. Perhaps
-   the instruction lanes don't need to be aligned?
+The instruction lanes don't need to be aligned. New instructions may be introduced
+on one lane, while other lanes are still reading parameter bytes for previous
+instructions.
 
 The 6bit opcode field can specify the opcode 0-63
 
-| opcode  | Functionality                                                    |
-|---------|------------------------------------------------------------------|
-| 000000b | nop -- No Operation. Might not need a full clock cycle           |
-| 000001b | ... some other instruction, perhaps undefined, and trapped.      |
-| 000010b | ... some other instruction, perhaps undefined, and trapped.      |
-| ...     | ...                                                              |
+| opcode  | Functionality                                                     |
+|---------|-------------------------------------------------------------------|
+| 000000b | nop -- No Operation. Might not need a full clock cycle            |
+| 000001b | ... some other instruction, perhaps undefined, and trapped.       |
+| 000010b | ... some other instruction, perhaps undefined, and trapped.       |
+| ...     | ...                                                               |
+| 000000b | 01b one param: offset from beginning of scope;  accum = @         |
+| 000000b | 10b two params: first reg and last reg;         @ = @[0:0...3]    |
+| 000000b | 01b one param: number of regs in subset;        @subset 4         |
+| 000000b | 01b one param: bitpositions to shift left;      @ << 3 b0         |
+| 000000b | 01b one param: bitpositions to shift right;     @ >> 3 b0         |
+| 000000b | 01b one param: bitpositions to shift left;      @ << 3 b1         |
+| 000000b | 01b one param: bitpositions to shift right;     @ >> 3 b1         |
+| 000000b | 01b one param: bitpositions to rotate left;     @ << 3            |
+| 000000b | 01b one param: bitpositions to rotate right;    @ >> 3            |
+| 000000b | 01b one param: offset from beginning of scope;  @ = accum         |
+| 000000b | 10b two params: offset and immediate value;     status = 00h
+| 000000b | sthing = instance something
+| 000000b | status = [sthing do_sth: 00h]
+| 000000b | r1 = p1
+| 000000b | r2 = 01h
+| ...     | ...                                                               |
 | 011110b | 11b three params (0xde) --  |
-| ...     |                   |
 | 101101b | 10b two params (0xad) -- |
 | 111110b | 10b two params (0xbe) -- |
 | 101111b | 11b three params (0xef) -- |
-
+| ...     | ...                                                               |

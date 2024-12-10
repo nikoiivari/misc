@@ -30,19 +30,19 @@ scope main
 # main is a label, but the fun keyword makes it a function label.
 fun main: (argc, argv)
 
-    accum = @           # save accumulator
+    accum = @           # save accumulator    
     @ = @[0:0...3]      # Square brackets '[' and ']' imply indexing -- not direct memory access
-    @ << 3 b0           # Shift left by 3 bit positions, slide down by 3 registers. Value is now
-                        # at the register @[:3].
-
-    @ = accum           # restore accumulator
-    @ = @[0:0...15]     # Accumulator region is 16 registers long
-
+    
     @subset 4           # Set subset to four registers. All operations on the accumulator
                         # will be replicated on all the current region accumulator registers
                         # in groups of four registers.
     
-    status = 00h        # Gotta always return a status byte from main. Default to 00h.
+    @ << 3 b0           # Shift left by 3 bit positions, slide down by 3 registers. Value is now
+                        # at the register @[:3].
+
+    @ = accum           # restore accumulator
+    
+    status = 00h        # Gotta always return a status byte from main. Initialize to 00h.
                         # Something has to be written to status before the function exits.
     
     sthing = instance something     # var sthing is in scope main. Scope main is in the heap.
@@ -56,12 +56,12 @@ scope something
     out r1: odd          .z     1byte   signed
 
     fun do_sth: p1
-        r1 = p1         # Most useless, but whatever...
+        r1 = p1         # Assign from in to out
     nuf r1
 
     out r2: even         .z     1byte   signed
 
     fun do_sth_else
-        r2 = 01h        # Return something
+        r2 = 01h        # Assign immediate value
     nuf r2
 epocs
