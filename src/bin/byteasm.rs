@@ -33,7 +33,8 @@ enum IdType {
     Idfun,
     Idnuf,
     // Instructions
-    // ...
+    IdAssignAccumToVar,
+    IdAssignVarToAccum,
 }
 
 // ask, req
@@ -340,6 +341,6 @@ fn write_exe_header (ob: &mut Vec<u8>, codesize: u32) {
     // Data area size?
 }
 
-//fn write_exe_code (ob: &mut Vec<u8>, codesize: u32) {
+//fn write_exe_code (ob: &mut Vec<u8>, codesize: u32, ) {
 
 //}
