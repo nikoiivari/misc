@@ -8,12 +8,20 @@ use std::io::Write;
 #[derive(Debug)]
 struct Op {
     opcode:u8,
+    param1:u8,
+    param2:u8,
+    param3:u8,
+    numparams: usize,
 }
 
 impl Op {
-    pub fn new(opcode:u8) -> Self {
+    pub fn new(opcode:u8, param1:u8, param2:u8, param3:u8, numparams:usize,) -> Self {
         Op {
             opcode: opcode,
+            param1: param1,
+            param2: param2,
+            param3: param3,
+            numparams: numparams,
         }
     }
 }
@@ -176,7 +184,13 @@ fn main ()
 // parse_code -- generate Op struct for code statement
 fn parse_code (code:String, ids:&Vec<Id>, funstack:&Vec<u16>) -> (Op, Id) {
     
-    let _o: Op = Op::new(0x0);
+    let mut o: Op = Op {
+        opcode: 0x0,
+        param1: 0x0,
+        param2: 0x0,
+        param3: 0x0,
+        numparams: 0x0, 
+    };
     let mut i: Id = Id {
         it: IdType::IdNotAnId,
         param: "".to_string(),
@@ -218,11 +232,11 @@ fn parse_code (code:String, ids:&Vec<Id>, funstack:&Vec<u16>) -> (Op, Id) {
             "then" => println!("if then..."),
             "else" => println!("if else..."),
             "fi"  => println!("if ends."),
-            &_ => println!("something else."),
+            &_ => o = parse_op(v),
         }
     }
     
-    (_o, i)
+    (o, i)
 }
 
 fn parse_id_mem (v: Vec<&str>, idt: IdType)-> Id {
@@ -230,7 +244,7 @@ fn parse_id_mem (v: Vec<&str>, idt: IdType)-> Id {
         println!("Error: identifier expects one parameter.");
         return Id::new(IdType::IdNotAnId, "".to_string());
     }
-    println!("{:?}", v);
+    //println!("{:?}", v);
     //TODO: parse memory parameter!!
     let i:Id = Id::new(idt, v[1].to_string()); //TODO: parse memory!!
     i
@@ -241,7 +255,7 @@ fn parse_id_use (v: Vec<&str>) -> Id {
         println!("Error: Identifier use expects one parameter");
         return Id::new(IdType::IdNotAnId, "".to_string());
     }
-    println!("{:?}", v); 
+    //println!("{:?}", v); 
     let i:Id = Id::new(IdType::Iduse, v[1].to_string());
     i
 }
@@ -295,7 +309,7 @@ fn parse_id_var(v: Vec<&str>, idt: IdType) -> Id {
         "unsigned"      => i.tt = TypeType::TypeUnsigned,
         &_ => println!("Error: not a TypeType."),
     }
-    println!("{:?}", i);
+    //println!("{:?}", i);
     i
 }
 
@@ -305,7 +319,7 @@ fn parse_id_fun (v:Vec<&str>) -> Id {
     // TODO: actually parse fun parameters!! Now builds fun without initializing parameters.
 
     let i:Id = Id::new(IdType::Idfun, v[1].to_string());
-    println!("{:?}", i);
+    //println!("{:?}", i);
     i
 }
 
@@ -315,13 +329,38 @@ fn parse_id_nuf (v:Vec<&str>, ids:&Vec<Id>, funstack:&Vec<u16>) -> Id {
     
     let funindex = funstack.len() - 1;
     let i:Id = Id::new(IdType::Idnuf, ids[(funstack[funindex]) as usize].param.to_string());
-    println!("{:?}", i);
+    //println!("{:?}", i);
     i
 }
 
 //TODO: actually parse tuple!!
 //TODO: parsing tuples is needed for taking fun parameters
 //fn parse_id_tuple () -> Id {}
+
+fn parse_op (v:Vec<&str>) -> Op {
+    println!("something else.");
+    let o:Op = Op {
+        opcode: 0x0,
+        param1: 0x0,
+        param2: 0x0,
+        param3: 0x0,
+        numparams: 0x0,
+    };
+
+    //Find out if op is an assignment op.
+    for tok in v {
+        //println!("{:?}", tok.rfind('='));
+        match tok {
+            "="         => println!("Assignment"),
+            "instance"  => println!("Instancing"),
+            "<<"        => println!("Shifting"),
+            _           => println!("Other"),
+        }
+    }
+
+
+    o
+}
 
 
 //==== Writing the executable ====
