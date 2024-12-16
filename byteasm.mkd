@@ -459,12 +459,13 @@ The p.type field in the instruction byte reveals how many parameter bytes follow
 
 There are several types of primitive instructions:
 - instruction to set the 4 register pcb in the zero-page when switching to another process.
-- instructions
+- instructions to set execution scope and data scope for code and data in cache.
+- instructions to assign values into registers at an offset from data scope base.
 
 - instructions to do copy ops from cache, to cache.
 - instructions to do copy ops from cache, to accumulator.
 - instructions to do copy ops from accumulator, to cache.
-- should we have ops to do copies from accumulator to accumulator?
+- instructions to do copy ops from accumulator to accumulator.
 
 - instructions to do logic gate ops on the swizzles of the accumulator.
 

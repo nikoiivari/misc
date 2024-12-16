@@ -224,6 +224,8 @@ fn parse_code (code:String, ids:&Vec<Id>, funstack:&Vec<u16>) -> (Op, Id) {
             "fun" => i = parse_id_fun(v),
             "return" => println!("function returns before completion..."),
             "nuf" => i = parse_id_nuf(v, ids, funstack),
+            "hexym" => println!("hexym begins..."),
+            "myxeh" => println!("hexym ends."),
             "case" => println!("case sth..."),
             "esac" => println!("case ends."),
             "fit" => println!("fit sth..."),
