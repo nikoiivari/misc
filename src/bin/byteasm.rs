@@ -120,7 +120,8 @@ fn main ()
 {
     // Vector of Ids
     let mut ids: Vec<Id> = vec![];
-    let mut funstack: Vec<u16> = vec![];
+    let mut funstack: Vec<u32> = vec![];
+    let mut varinoutstack: Vec<u32> = vec![];
     
     let mut infilepath: &str = "bin.out";
 
@@ -152,11 +153,11 @@ fn main ()
             // parse instruction
             if "" != code {
                 let _o:Op; let i:Id;
-                (_o, i) = parse_code(code, &ids, &funstack);
+                (_o, i) = parse_code(code, &ids, &funstack, &varinoutstack);
                 //println!("{:?}, {:?}", o, i);
                 if IdType::Idfun == i.it {                    
                     ids.push(i);
-                    let funindex:u16 = (ids.len() - 1) as u16;
+                    let funindex:u32 = (ids.len() - 1) as u32;
                     funstack.push(funindex);
                 } else if IdType::Idnuf == i.it {
                     ids.push(i);
@@ -182,7 +183,11 @@ fn main ()
 }
 
 // parse_code -- generate Op struct for code statement
-fn parse_code (code:String, ids:&Vec<Id>, funstack:&Vec<u16>) -> (Op, Id) {
+fn parse_code ( code:String,
+                ids:&Vec<Id>,
+                funstack:&Vec<u32>,
+                _varinoutstack:&Vec<u32>) -> (Op, Id)
+{
     
     let mut o: Op = Op {
         opcode: 0x0,
@@ -325,7 +330,7 @@ fn parse_id_fun (v:Vec<&str>) -> Id {
     i
 }
 
-fn parse_id_nuf (v:Vec<&str>, ids:&Vec<Id>, funstack:&Vec<u16>) -> Id {
+fn parse_id_nuf (v:Vec<&str>, ids:&Vec<Id>, funstack:&Vec<u32>) -> Id {
     println!("{:?}", v);
     // TODO: actually parse return values inside tuple!!!
     
@@ -349,20 +354,47 @@ fn parse_op (v:Vec<&str>) -> Op {
         numparams: 0x0,
     };
 
+    let mut pattern: Vec<char> = vec![];
+    let mut varoffs: Vec<u8> = vec![];
     //Find out if op is an assignment op.
     for tok in v {
         //println!("{:?}", tok.rfind('='));
         match tok {
-            "="         => println!("Assignment"),
-            "instance"  => println!("Instancing"),
-            "<<"        => println!("Shifting"),
-            _           => println!("Other"),
+            "="         => pattern.push('E'),
+            "instance"  => pattern.push('I'),
+            "<<"        => pattern.push('L'),
+            ">>"        => pattern.push('R'),
+            "@"         => pattern.push('A'),
+            "$"         => pattern.push('C'),
+            _           => parse_other(tok, &mut pattern, &mut varoffs),
         }
+
     }
 
-
+    println!("{:?}", pattern);
     o
 }
+
+fn parse_other(_tok: &str, _pattern: &mut Vec<char>, _varoffs: &mut Vec<u8>) {
+    // if tis a @ (a) or $ (c) sub-capability TODO...
+
+    // if tis a method invocation (i) TODO...
+
+    // if tis a value (immediate value returned in varoffs) TODO: read values
+
+    // if tis a label (return index in pattern, offset in varoffs)
+
+}
+
+//TODO: actually read values
+//fn is_hex_byte(tok: &str, value: &mut u8) -> bool {
+
+//}
+
+fn is_varinout (_tok: &str,  ) -> bool {
+    true
+}
+
 
 
 //==== Writing the executable ====
