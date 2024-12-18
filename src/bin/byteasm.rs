@@ -162,6 +162,10 @@ fn main ()
                 } else if IdType::Idnuf == i.it {
                     ids.push(i);
                     funstack.pop();
+                } else if IdType::Idvar == i.it || IdType::Idin == i.it || IdType::Idout == i.it {
+                    ids.push(i);
+                    let varinoutindex:u32 = (ids.len() - 1) as u32;
+                    varinoutstack.push(varinoutindex);
                 } else {
                     ids.push(i);
                 }
@@ -277,7 +281,7 @@ fn parse_id_scope (v: Vec<&str>) -> Id {
     i
 }
 
-fn parse_id_var(v: Vec<&str>, idt: IdType) -> Id {
+fn parse_id_var (v: Vec<&str>, idt: IdType) -> Id {
     if 6 != v.len() {
         println!("Error: Identifier expects five parameters.");
         return Id::new(IdType::IdNotAnId, "".to_string());
