@@ -159,6 +159,7 @@ fn main ()
                     ids.push(i);
                     let funindex:u32 = (ids.len() - 1) as u32;
                     funstack.push(funindex);
+                    println!("funstack: {:?}", funindex);
                 } else if IdType::Idnuf == i.it {
                     ids.push(i);
                     funstack.pop();
@@ -166,6 +167,7 @@ fn main ()
                     ids.push(i);
                     let varinoutindex:u32 = (ids.len() - 1) as u32;
                     varinoutstack.push(varinoutindex);
+                    println!("varinoutstack: {:?}", varinoutindex);
                 } else {
                     ids.push(i);
                 }

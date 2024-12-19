@@ -358,7 +358,7 @@ anywhere in the cache.
 ## Page subset mask
 
 Page subset mask is used in memory address calculations, so that it is not possible for a
-range to start at an odd address. Also the page divider will limit the starting
+range to start at an odd address. Also the subset mask will limit the starting
 address to a coarser granularity.
 
 (range_begin_address).st = (page address).st 
@@ -370,8 +370,8 @@ maximum divider (mask = b00000000).
 
 - b11111111 subset off -- address individual regs, and range can start at odd address also.
 - b11111110 subset 2  -- page is divided into register pairs. Ranges start at even addresses.
-- b11111100 subset 4  -- page is divided into 4 reg subset. Ranges start even.
-- b11111000 subset 8  -- page is divided into 8 reg subset. Ranges start even.
+- b11111100 subset 4  -- page is divided into 4 register subsets. Ranges start even.
+- b11111000 subset 8  -- page is divided into 8 register subsets. Ranges start even.
 - b11110000 subset 16 -- ...
 
 This will zero out the lower bits to set the address at a reasonable location. See examples.
@@ -542,3 +542,27 @@ The 6bit opcode field can specify the opcode 0-63
 | 111110b | 10b two params (0xbe) -- |
 | 101111b | 11b three params (0xef) -- |
 | ...     | ...                                                               |
+
+
+# Binary format
+
+The binary as stored on disk should have a 8byte header.
+
+```
+                 SDS subset mask
+                 |
+          'X''E' |  SDS offset
+           |  |  |  |
+00000000  58 45 00 00 00 00 00 03                        |XE......|
+00000008               |
+                            
+
+Legend:
+
+    SDS subset mask: subset mask to use with SDS offset
+                     Static Data Segment (SDS) starts after
+                     Static Code Segment (SCS).
+    SDS offset: To get actual first register of SDS
+
+TODO: continue from here!!!
+```
