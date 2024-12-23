@@ -549,9 +549,9 @@ The 6bit opcode field can specify the opcode 0-63
 The binary as stored on disk should have a 8byte header.
 
 ```
-                 SDS subset mask
+                 SHIFT
                  |
-          'X''E' |  SDS offset
+          'X''E' |  offset
            |  |  |  |
 00000000  58 45 00 00 00 00 00 03                        |XE......|
 00000008               |
@@ -559,10 +559,9 @@ The binary as stored on disk should have a 8byte header.
 
 Legend:
 
-    SDS subset mask: subset mask to use with SDS offset
-                     Static Data Segment (SDS) starts after
-                     Static Code Segment (SCS).
-    SDS offset: To get actual first register of SDS
-
 TODO: continue from here!!!
 ```
+
+How does the math work?
+
+TODO: perhaps just specify two 24bit offsets: Static Data Segment and Dynamic Data Seg.
