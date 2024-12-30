@@ -40,9 +40,13 @@ enum IdType {
     Idout,
     Idfun,
     Idnuf,
+    IdHexym,
+    IdMyxeh,
     // Instructions
     IdAssignAccumToVar,
     IdAssignVarToAccum,
+    IdAssignCacheToVar,
+    IdAssignVarToCache,
 }
 
 // ask, req
@@ -360,28 +364,26 @@ fn parse_op (v:Vec<&str>) -> Op {
         numparams: 0x0,
     };
 
-    let mut pattern: Vec<char> = vec![];
     let mut varoffs: Vec<u8> = vec![];
     //Find out if op is an assignment op.
     for tok in v {
-        //println!("{:?}", tok.rfind('='));
-        match tok {
-            "="         => pattern.push('E'),
-            "instance"  => pattern.push('I'),
-            "<<"        => pattern.push('L'),
-            ">>"        => pattern.push('R'),
-            "@"         => pattern.push('A'),
-            "$"         => pattern.push('C'),
-            _           => parse_other(tok, &mut pattern, &mut varoffs),
+        println!("{:?}", tok.rfind('='));
+        //let _equalssign = tok.rfind('=').unwrap();
+        //Argh...
+        if (true) {
+            parse_assignment(tok, &mut varoffs);
         }
-
+        parse_other(tok, &mut varoffs);
     }
 
-    println!("{:?}", pattern);
     o
 }
 
-fn parse_other(_tok: &str, _pattern: &mut Vec<char>, _varoffs: &mut Vec<u8>) {
+fn parse_assignment(_tok: &str, _varoffs: &mut Vec<u8>) {
+
+}
+
+fn parse_other(_tok: &str, _varoffs: &mut Vec<u8>) {
     // if tis a @ (a) or $ (c) sub-capability TODO...
 
     // if tis a method invocation (i) TODO...
