@@ -40,8 +40,8 @@ enum IdType {
     Idout,
     Idfun,
     Idnuf,
-    IdHexym,
-    IdMyxeh,
+    Idhexym,
+    Idmyxeh,
     // Instructions
     IdAssignAccumToVar,
     IdAssignVarToAccum,
@@ -181,12 +181,12 @@ fn main ()
 
     // ==== Write executable file ====
 
-    write_exe_header(&mut ob, 0x00000003);
+    write_xe_header(&mut ob, 0x000003, 0x000002);
     
     // strip file extension from infilepath
     let pathparts: Vec<&str> = infilepath.split('.').collect();
     let outfilepath = pathparts[0];
-    let outfileext = outfilepath.to_owned() + ".exe";
+    let outfileext = outfilepath.to_owned() + ".xe";
     println!("Writing executable: {:?}", outfileext);
     let mut outfile = File::create(outfileext).unwrap();
     outfile.write(&ob).unwrap();
@@ -239,8 +239,8 @@ fn parse_code ( code:String,
             "fun" => i = parse_id_fun(v),
             "return" => println!("function returns before completion..."),
             "nuf" => i = parse_id_nuf(v, ids, funstack),
-            "hexym" => println!("hexym begins..."),
-            "myxeh" => println!("hexym ends."),
+            "hexym" => i = parse_id_hexym(v),
+            "myxeh" => i = parse_id_myxeh(v),
             "case" => println!("case sth..."),
             "esac" => println!("case ends."),
             "fit" => println!("fit sth..."),
@@ -354,6 +354,18 @@ fn parse_id_nuf (v:Vec<&str>, ids:&Vec<Id>, funstack:&Vec<u32>) -> Id {
 //TODO: parsing tuples is needed for taking fun parameters
 //fn parse_id_tuple () -> Id {}
 
+fn parse_id_hexym (v:Vec<&str>) -> Id {
+    println!("{:?}", v);
+    let i:Id = Id::new(IdType::Idhexym, "".to_string());
+    i
+}
+
+fn parse_id_myxeh (v:Vec<&str>) -> Id {
+    println!("{:?}", v);
+    let i:Id = Id::new(IdType::Idmyxeh, "".to_string());
+    i
+}
+
 fn parse_op (v:Vec<&str>) -> Op {
     println!("something else.");
     let o:Op = Op {
@@ -367,13 +379,14 @@ fn parse_op (v:Vec<&str>) -> Op {
     let mut varoffs: Vec<u8> = vec![];
     //Find out if op is an assignment op.
     for tok in v {
-        println!("{:?}", tok.rfind('='));
+        //println!("{:?}", tok.rfind('='));
         //let _equalssign = tok.rfind('=').unwrap();
         //Argh...
-        if (true) {
+        if true {
             parse_assignment(tok, &mut varoffs);
+        } else {
+            parse_other(tok, &mut varoffs);
         }
-        parse_other(tok, &mut varoffs);
     }
 
     o
@@ -407,19 +420,19 @@ fn is_varinout (_tok: &str,  ) -> bool {
 
 //==== Writing the executable ====
 
-fn write_exe_header (ob: &mut Vec<u8>, codesize: u32) {
-    // EXE MAGIC
-    ob.push(0x45);
+fn write_xe_header (ob: &mut Vec<u8>, codesize: u32, datasize: u32) {
+    // XE MAGIC
     ob.push(0x58);
     ob.push(0x45);
-    ob.push(0x0);
-    // Code area size. Actually only uses lowest 24bits
-    ob.push((codesize >> 24) as u8);
+        
+    //(static) code size
     ob.push(((codesize & 0b00000000111111110000000000000000) >> 16) as u8);
     ob.push(((codesize & 0b00000000000000001111111100000000) >> 8) as u8);
     ob.push(((codesize & 0b00000000000000000000000011111111)) as u8);
-    
-    // Data area size?
+    //(static) data size
+    ob.push(((datasize & 0b00000000111111110000000000000000) >> 16) as u8);
+    ob.push(((datasize & 0b00000000000000001111111100000000) >> 8) as u8);
+    ob.push(((datasize & 0b00000000000000000000000011111111)) as u8);
 }
 
 //fn write_exe_code (ob: &mut Vec<u8>, codesize: u32, ) {

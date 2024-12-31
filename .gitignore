@@ -3,4 +3,4 @@
 Cargo.lock
 
 **/*.rs.bk
-symbols.exe
+symbols.xe

@@ -549,19 +549,17 @@ The 6bit opcode field can specify the opcode 0-63
 The binary as stored on disk should have a 8byte header.
 
 ```
-                 SHIFT
+                 codesize
                  |
-          'X''E' |  offset
-           |  |  |  |
+          'X''E' |_____  
+           |  |  |     |
 00000000  58 45 00 00 00 00 00 03                        |XE......|
-00000008               |
-                            
-
-Legend:
-
-TODO: continue from here!!!
+00000008                 |______|
+                                |
+                                |
+                                datasize
 ```
 
-How does the math work?
+Datasize is the size of the static data area that follows the code area. Both codesize
+and datasize are 24bit unsigned integers.
 
-TODO: perhaps just specify two 24bit offsets: Static Data Segment and Dynamic Data Seg.

@@ -29,25 +29,25 @@ scope main
 
 # main is a label, but the fun keyword makes it a function label.
 fun main: (argc, argv)
+    hexym
+        #accum = @           # save accumulator    
+        #@ = @[0:0...3]      # Square brackets '[' and ']' imply indexing -- not direct memory access
+        
+        #@subset 4           # Set subset to four registers. All operations on the accumulator
+                            # will be replicated on all the current region accumulator registers
+                            # in groups of four registers.
+        
+        #@ << 3 b0           # Shift left by 3 bit positions, slide down by 3 registers. Value is now
+                            # at the register @[:3].
 
-    accum = @           # save accumulator    
-    @ = @[0:0...3]      # Square brackets '[' and ']' imply indexing -- not direct memory access
-    
-    @subset 4           # Set subset to four registers. All operations on the accumulator
-                        # will be replicated on all the current region accumulator registers
-                        # in groups of four registers.
-    
-    @ << 3 b0           # Shift left by 3 bit positions, slide down by 3 registers. Value is now
-                        # at the register @[:3].
-
-    @ = accum           # restore accumulator
-    
-    status = 00h        # Gotta always return a status byte from main. Initialize to 00h.
-                        # Something has to be written to status before the function exits.
-    
-    sthing = instance something     # var sthing is in scope main. Scope main is in the heap.
-    status = [sthing do_sth: 00h]   # call method do_sth: of instance sthing
-
+        #@ = accum           # restore accumulator
+        
+        #status = 00h        # Gotta always return a status byte from main. Initialize to 00h.
+                            # Something has to be written to status before the function exits.
+        
+        #sthing = instance something     # var sthing is in scope main. Scope main is in the heap.
+        #status = [sthing do_sth: 00h]   # call method do_sth: of instance sthing
+    myxeh
 nuf status              # fun main ends, returning status.
 epocs                   # scope main ends
 
