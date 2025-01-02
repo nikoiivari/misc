@@ -502,7 +502,7 @@ The 6bit opcode field can specify the opcode 0-63
 
 | opcode  | Functionality                                                     |
 |---------|-------------------------------------------------------------------|
-| 000000b | nop -- No Operation. Might not need a full clock cycle            |
+| 000000b | nop -- No Operation.                                              |
 | 000001b | ... some other instruction, perhaps undefined, and trapped.       |
 | 000010b | ... some other instruction, perhaps undefined, and trapped.       |
 | 000011b | ... as above ...                                                  |
@@ -528,10 +528,11 @@ The 6bit opcode field can specify the opcode 0-63
 |---------|-------------------------------------------------------------------|
 | 000100b | 01b one byte:  offset from beginning of scope;  accum = @         |
 | 000101b | 01b one byte:  offset from beginning of scope;  @ = accum         |
-| 000110b | 10b two bytes(*): 1st page-lsB, 2nd page-lsB;   @ = @[0-255:]     |
-| 000111b | 11b three bytes(*): page-lsB, 1st and 2nd reg;  @ = @[0:0...3]    |
+| 000110b | 10b two bytes(*): 1st page-LSB, 2nd page-lsB;   @ = @[0-255:]     |
+| 000111b | 11b three bytes(*): page-LSB, 1st and 2nd reg;  @ = @[0:0...3]    |
 |         | (*) the most significant byte of page must be derieved from the @.|
-| 001000b | TODO: continue here... |
+| 001000b | 01b one byte: Set page-MSB of @;
+| 001001b | TODO: continue here... |
 | ...     | ...                                                               |
 | 000000  | 01b one param: offset from beginning of scope;  cache = $         |
 | 000000  | 01b one param: offset from beginning of scope;  $ = cache         |
@@ -549,10 +550,10 @@ The 6bit opcode field can specify the opcode 0-63
 The binary as stored on disk should have a 8byte header.
 
 ```
-                 codesize
-                 |
-          'X''E' |_____  
-           |  |  |     |
+                codesize
+                |
+          'X''E'|______
+           |  | |      |
 00000000  58 45 00 00 00 00 00 03                        |XE......|
 00000008                 |______|
                                 |
@@ -563,3 +564,4 @@ The binary as stored on disk should have a 8byte header.
 Datasize is the size of the static data area that follows the code area. Both codesize
 and datasize are 24bit unsigned integers.
 
+The heap begins after static data area.

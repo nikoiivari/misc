@@ -30,15 +30,19 @@ scope main
 # main is a label, but the fun keyword makes it a function label.
 fun main: (argc, argv)
     hexym
-        #accum = @           # save accumulator    
-        #@ = @[0:0...3]      # Square brackets '[' and ']' imply indexing -- not direct memory access
+        #accum = @           # save accumulator TODO: the hexym could be more compact?
+        44 00 00 00 00 00 00 00
+        00 00 00 00 00 00 00 00 # TODO: nibblemuncher proper offset from scope base
+        
+        #@ = @[0:0...3]     # Square brackets '[' and ']' imply indexing; not direct memory access
+        c7 00 00 00 00 00 00 00
         
         #@subset 4           # Set subset to four registers. All operations on the accumulator
                             # will be replicated on all the current region accumulator registers
                             # in groups of four registers.
         
-        #@ << 3 b0           # Shift left by 3 bit positions, slide down by 3 registers. Value is now
-                            # at the register @[:3].
+        #@ << 3 b0      # Shift left by 3 bit positions, slide down by 3 registers. Value is now
+                        # at the register @[:3].
 
         #@ = accum           # restore accumulator
         

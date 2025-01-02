@@ -12,8 +12,11 @@ struct Reg {
 }
 
 // Handy when testing:
-// echo -en "\xde\xad\xbe\xef\xde\xad\xbe\xef" >> symbols.exe
+// echo -en "\xde\xad\xbe\xef\xde\xad\xbe\xef" >> symbols.xe
 // repeat three times to get three registers of "code".
+
+// To dump 8 bytes per line as hexadecimal:
+// od -A x -t x1z -w8 symbols.xe
 
 // Bytecode virtual machine
 // Read bytecode file and execute.
