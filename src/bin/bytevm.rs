@@ -32,18 +32,22 @@ fn main () {
     // File loading and setup that an OS would do.
     let offset = 256; // 256 registers offset, to skip zero page
     // TODO: get filename from commandline!!!
-    let buffer: Vec<u8> = fs::read("symbols.exe").unwrap();
-    let mut codesize:u32 = buffer[7] as u32; //lowest byte
-    let cs2b: u32 = buffer[6] as u32;
-    let cs3b: u32 = buffer[5] as u32;
-    //println!("{:x}", codesize);
-    //println!("{:x}", cs2b);
-    //println!("{:x}", cs3b);
+    let buffer: Vec<u8> = fs::read("symbols.xe").unwrap();
+    
+    let mut codesize:u32 = buffer[4] as u32; //lowest byte
+    let cs2b: u32 = buffer[3] as u32;
+    let cs3b: u32 = buffer[2] as u32;    
     codesize = codesize | (cs2b << 8);
-    //println!("{:x}", codesize);
     codesize = codesize | (cs3b << 16); // 24bits of codesize
     println!("{:x}", codesize);
     
+    let mut datasize:u32 = buffer[7] as u32; //lowest byte
+    let ds2b: u32 = buffer[6] as u32;
+    let ds3b: u32 = buffer[5] as u32;
+    datasize = datasize | (ds2b << 8);
+    datasize = datasize | (ds3b << 16);
+    println!("{:x}", datasize);
+
     // Put code into cache registers. Start from offset.
     for i in offset..(offset + codesize) {
         cache[i as usize].wbr = false;
@@ -71,5 +75,16 @@ fn main () {
 
         cache[i as usize].bits = bytes;
         println!("{:x}", bytes);
+    }
+
+    for i in (offset + codesize)..(offset + codesize + datasize) {
+        cache[i as usize].wbr = false;
+        cache[i as usize].cap = false;
+
+        // each of the 8 bytes
+
+        //...
+        cache[i as usize].bits = 0x00;
+        println!("{:x}", 0x00);
     }
 }
