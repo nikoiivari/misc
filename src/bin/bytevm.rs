@@ -39,14 +39,14 @@ fn main () {
     let cs3b: u32 = buffer[2] as u32;    
     codesize = codesize | (cs2b << 8);
     codesize = codesize | (cs3b << 16); // 24bits of codesize
-    println!("{:x}", codesize);
+    println!("codesize: {:x}", codesize);
     
     let mut datasize:u32 = buffer[7] as u32; //lowest byte
     let ds2b: u32 = buffer[6] as u32;
     let ds3b: u32 = buffer[5] as u32;
     datasize = datasize | (ds2b << 8);
-    datasize = datasize | (ds3b << 16);
-    println!("{:x}", datasize);
+    datasize = datasize | (ds3b << 16); // 24bits of datasize (static data before heap)
+    println!("datasize: {:x}", datasize);
 
     // Put code into cache registers. Start from offset.
     for i in offset..(offset + codesize) {
@@ -82,9 +82,26 @@ fn main () {
         cache[i as usize].cap = false;
 
         // each of the 8 bytes
+        let j:usize = (i - offset) as usize;
+        let dot_s = buffer[8 + (j * 8) + 0] as u64;
+        let dot_t = buffer[8 + (j * 8) + 1] as u64;
+        let dot_u = buffer[8 + (j * 8) + 2] as u64;
+        let dot_v = buffer[8 + (j * 8) + 3] as u64;
+        let dot_w = buffer[8 + (j * 8) + 4] as u64;
+        let dot_x = buffer[8 + (j * 8) + 5] as u64;
+        let dot_y = buffer[8 + (j * 8) + 6] as u64;
+        let dot_z = buffer[8 + (j * 8) + 7] as u64;
 
-        //...
-        cache[i as usize].bits = 0x00;
-        println!("{:x}", 0x00);
+        let mut bytes: u64 = dot_s << 56;
+        bytes = bytes | (dot_t << 48);
+        bytes = bytes | (dot_u << 40);
+        bytes = bytes | (dot_v << 32);
+        bytes = bytes | (dot_w << 24);
+        bytes = bytes | (dot_x << 16);
+        bytes = bytes | (dot_y <<  8);
+        bytes = bytes | dot_z;
+
+        cache[i as usize].bits = bytes;
+        println!("{:x}", bytes);
     }
 }
