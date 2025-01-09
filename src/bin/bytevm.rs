@@ -15,6 +15,13 @@ struct Reg {
 // echo -en "\xde\xad\xbe\xef\xde\xad\xbe\xef" >> symbols.xe
 // repeat three times to get three registers of "code".
 
+// Type up a fake program in hexadcimal:
+// echo -en "\xde\xad\xbe\xef\xde\xad\xbe\xe0" >> symbols.xe
+// echo -en "\xde\xad\xbe\xef\xde\xad\xbe\xe1" >> symbols.xe
+// echo -en "\xde\xad\xbe\xef\xde\xad\xbe\xe2" >> symbols.xe
+// echo -en "\xff\xff\xff\xff\x00\x00\x00\x00" >> symbols.xe
+// echo -en "\xff\xff\xff\xff\x00\x00\x00\x01" >> symbols.xe
+
 // To dump 8 bytes per line as hexadecimal:
 // od -A x -t x1z -w8 symbols.xe
 
@@ -74,7 +81,7 @@ fn main () {
         bytes = bytes | dot_z;
 
         cache[i as usize].bits = bytes;
-        println!("{:x}", bytes);
+        println!("{:x}: {:x}", i, bytes);
     }
 
     for i in (offset + codesize)..(offset + codesize + datasize) {
@@ -102,6 +109,12 @@ fn main () {
         bytes = bytes | dot_z;
 
         cache[i as usize].bits = bytes;
-        println!("{:x}", bytes);
+        println!("{:x}: {:x}", i, bytes);
     }
+
+    // At this point code and static data is loaded in to cache. The next thing to do
+    // is to instantiate variables from scope main into the heap that starts immediately
+    // after the static data area, and start executing fun main.
+
+
 }
