@@ -549,19 +549,33 @@ The 6bit opcode field can specify the opcode 0-63
 
 The binary as stored on disk should have a 8byte header.
 
+The first 8 bytes is as follows:
+
 ```
                 codesize
                 |
           'X''E'|______
            |  | |      |
-00000000  58 45 00 00 00 00 00 03                        |XE......|
+00000000  58 45 00 00 03 00 00 02                        |XE......|
 00000008                 |______|
                                 |
                                 |
                                 datasize
 ```
-
 Datasize is the size of the static data area that follows the code area. Both codesize
 and datasize are 24bit unsigned integers.
 
-The heap begins after static data area.
+After the header is stored the code and static data.
+
+After code and static data comes the instantiation table. The instantiation table starts
+with a 8byte header.
+
+```
+                numscope
+                |
+          'I''T'|______
+           |  | |      |
+nnnnnnnn  49 54 00 00 00 00 00 00                        |IT......|
+
+```
+numscope is the number of scope fields stored after the IT-header.
