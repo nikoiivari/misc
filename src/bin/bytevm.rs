@@ -112,9 +112,9 @@ fn main () {
         println!("{:x}: {:x}", i, bytes);
     }
 
-    // At this point code and static data is loaded in to cache. The next thing to do
+    // At this point code and initialized data is loaded in to cache. The next thing to do
     // is to instantiate variables from scope main into the heap that starts immediately
-    // after the static data area, and start executing fun main.
+    // after the initialized data area, and start executing fun main.
 
 
 }
