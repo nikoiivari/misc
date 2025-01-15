@@ -519,6 +519,8 @@ The 6bit opcode field can specify the opcode 0-63
 | 000101b | 01b one param: offset from beginning of scope;  @ = accum         |
 | 000000b | 10b two params: offset and immediate value;     status = 00h      |
 | 000000b | 10b two params: offset and scope;     sthing = instance something |
+|         | offset to var in current scope to hold return value (capability), |
+|         | scope to instantiate.                                             |
 | 000000b | 10b two params: offset and tuple;   status = [sthing do_sth: 00h] |
 | 000000b | 10b two params: offset from scope for both;     r1 = p1           |
 | 000000b | 10b two params: offset and immediate value;     r2 = 01h          |
@@ -531,7 +533,7 @@ The 6bit opcode field can specify the opcode 0-63
 | 000110b | 10b two bytes(*): 1st page-LSB, 2nd page-lsB;   @ = @[0-255:]     |
 | 000111b | 11b three bytes(*): page-LSB, 1st and 2nd reg;  @ = @[0:0...3]    |
 |         | (*) the most significant byte of page must be derieved from the @.|
-| 001000b | 01b one byte: Set page-MSB of @;
+| 001000b | 01b one byte: Set page-MSB of @;                                  |
 | 001001b | TODO: continue here... |
 | ...     | ...                                                               |
 | 000000  | 01b one param: offset from beginning of scope;  cache = $         |
@@ -545,7 +547,7 @@ The 6bit opcode field can specify the opcode 0-63
 | ...     | ...                                                               |
 
 
-# Binary format
+# "XEST" Binary format
 
 The binary as stored on disk should have a 16byte header.
 
@@ -573,17 +575,17 @@ The next 8 bytes is the scope table header.
           'S''T'|______
            |  | |      |
 00000008  53 54 00 00 00 00 00 00                        |ST......|
+                         |______|
+                                |
+                                unused,
+                                reserved
 
 ```
-numscope is the number of scope fields stored after the code and the static data.
+numscope is the number of scope fields stored after the code and the initialized data.
 
-After the header is stored the code and static data.
+After the header is stored the code and initialized data.
 
-Scope fields look like this:
+After the initialized data, begins the heap.
 
-```
-           numregs
-           |
-nnnnnnnn  00 00 00 00 00 00 00 00                        |........|
 
-```
+NOTE TO SELF: Everything is made out of tuples. Tuples are a binary tree datastructure.

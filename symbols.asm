@@ -22,8 +22,8 @@ scope main
     
     var sthing: odd   .stuvwxyz   8byte   capability  # to store instance of scope something
 
-    in argc:    even   .stuvwxyz   8byte   signed
-    in argv[]:  odd    .stuvwxyz   8byte   capability # argv[] should use string?
+    in argc:    even  .stuvwxyz   8byte   signed
+    in argv[]:  odd   .stuvwxyz   8byte   capability # argv[] should use string?
 
     out status: even          .z   1byte   signed
 
@@ -49,8 +49,12 @@ fun main: (argc, argv)
         #status = 00h        # Gotta always return a status byte from main. Initialize to 00h.
                             # Something has to be written to status before the function exits.
         
-        #sthing = instance something     # var sthing is in scope main. Scope main is in the heap.
-        #status = [sthing do_sth: 00h]   # call method do_sth: of instance sthing
+        #sthing = instance something     # This expands to the code doing the following:
+                                         # 1. create sub-capability to hold scope on heap.
+                                         # 2. set WBR on all registers of this sub-capability.
+                                         # 3. write sub-capability to sthing
+        #status = [sthing do_sth: 00h]   # call method do_sth: of instance sthing. This should
+                                         # be the initializer method.
     myxeh
 nuf status              # fun main ends, returning status.
 epocs                   # scope main ends
