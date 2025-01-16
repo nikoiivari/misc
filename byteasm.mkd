@@ -583,9 +583,23 @@ The next 8 bytes is the scope table header.
 ```
 numscope is the number of scope fields stored after the code and the initialized data.
 
+TODO: What scope fields? Are there any scope fields?
+
 After the header is stored the code and initialized data.
 
-After the initialized data, begins the heap.
+When the code and the initialized data has been loaded into memory, the heap begins 
+immediately after.
 
+
+# NibbleMuncher is used for memory management and code execution
 
 NOTE TO SELF: Everything is made out of tuples. Tuples are a binary tree datastructure.
+
+A tuple of tuples
+
+NR
+DD
+NR  # NoR Dup NoR is OR
+
+
+Witch bit to switch on? The 
