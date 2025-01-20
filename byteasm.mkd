@@ -577,8 +577,8 @@ The next 8 bytes is the scope table header.
 00000008  53 54 00 00 00 00 00 00                        |ST......|
                          |______|
                                 |
-                                unused,
-                                reserved
+                                code entry
+                                point offset
 
 ```
 numscope is the number of scope fields stored after the code and the initialized data.
@@ -597,9 +597,7 @@ NOTE TO SELF: Everything is made out of tuples. Tuples are a binary tree datastr
 
 A tuple of tuples
 
-NR
-DD
-NR  # NoR Dup NoR is OR
+
 
 
 Witch bit to switch on? The 

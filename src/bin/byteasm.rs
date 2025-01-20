@@ -181,7 +181,7 @@ fn main ()
 
     // ==== Write executable file ====
 
-    write_xe_header(&mut ob, 0x000003, 0x000002);
+    write_xe_header(&mut ob, 0x000003, 0x000002, 0x000001, 0x00000);
     
     // strip file extension from infilepath
     let pathparts: Vec<&str> = infilepath.split('.').collect();
@@ -420,19 +420,32 @@ fn is_varinout (_tok: &str,  ) -> bool {
 
 //==== Writing the executable ====
 
-fn write_xe_header (ob: &mut Vec<u8>, codesize: u32, datasize: u32) {
+fn write_xe_header (ob: &mut Vec<u8>, codesize: u32, datasize: u32, numscope: u32, entry: u32) {
     // XE MAGIC
     ob.push(0x58);
     ob.push(0x45);
         
-    //(static) code size
+    // code size
     ob.push(((codesize & 0b00000000111111110000000000000000) >> 16) as u8);
     ob.push(((codesize & 0b00000000000000001111111100000000) >> 8) as u8);
     ob.push(((codesize & 0b00000000000000000000000011111111)) as u8);
-    //(static) data size
+    // data size
     ob.push(((datasize & 0b00000000111111110000000000000000) >> 16) as u8);
     ob.push(((datasize & 0b00000000000000001111111100000000) >> 8) as u8);
     ob.push(((datasize & 0b00000000000000000000000011111111)) as u8);
+
+    // ST
+    ob.push(0x53);
+    ob.push(0x54);
+
+    // numscope
+    ob.push(((numscope & 0b00000000111111110000000000000000) >> 16) as u8);
+    ob.push(((numscope & 0b00000000000000001111111100000000) >> 8) as u8);
+    ob.push(((numscope & 0b00000000000000000000000011111111)) as u8);
+    // code entry point
+    ob.push(((entry & 0b00000000111111110000000000000000) >> 16) as u8);
+    ob.push(((entry & 0b00000000000000001111111100000000) >> 8) as u8);
+    ob.push(((entry & 0b00000000000000000000000011111111)) as u8);
 }
 
 //fn write_exe_code (ob: &mut Vec<u8>, codesize: u32, ) {
