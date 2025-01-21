@@ -35,7 +35,9 @@ fn main () {
     // Accum of 4096 registers. (16 pages of 256 each). ~32KB accum
     let mut _accum: [Reg; 4096];
 
-    
+    // header size in bytes
+    let hdr = 16;
+
     // File loading and setup that an OS would do.
     let offset = 256; // 256 registers offset, to skip zero page
     // TODO: get filename from commandline!!!
@@ -55,6 +57,20 @@ fn main () {
     datasize = datasize | (ds3b << 16); // 24bits of datasize (static data before heap)
     println!("datasize: {:x}", datasize);
 
+    let mut numscope:u32 = buffer[12] as u32; //lowest byte
+    let ns2b: u32 = buffer[11] as u32;
+    let ns3b: u32 = buffer[10] as u32;    
+    numscope = numscope | (ns2b << 8);
+    numscope = numscope | (ns3b << 16); // 24bits of numscope
+    println!("numscope: {:x}", numscope);
+
+    let mut entry:u32 = buffer[15] as u32; //lowest byte
+    let e2b: u32 = buffer[14] as u32;
+    let e3b: u32 = buffer[13] as u32;    
+    entry = entry | (e2b << 8);
+    entry = entry | (e3b << 16); // 24bits of entry
+    println!("entry: {:x}", entry);
+
     // Put code into cache registers. Start from offset.
     for i in offset..(offset + codesize) {
         cache[i as usize].wbr = false;
@@ -62,14 +78,14 @@ fn main () {
         
         // each of the 8 bytes
         let j:usize = (i - offset) as usize;
-        let dot_s = buffer[8 + (j * 8) + 0] as u64;
-        let dot_t = buffer[8 + (j * 8) + 1] as u64;
-        let dot_u = buffer[8 + (j * 8) + 2] as u64;
-        let dot_v = buffer[8 + (j * 8) + 3] as u64;
-        let dot_w = buffer[8 + (j * 8) + 4] as u64;
-        let dot_x = buffer[8 + (j * 8) + 5] as u64;
-        let dot_y = buffer[8 + (j * 8) + 6] as u64;
-        let dot_z = buffer[8 + (j * 8) + 7] as u64;
+        let dot_s = buffer[hdr + (j * 8) + 0] as u64;
+        let dot_t = buffer[hdr + (j * 8) + 1] as u64;
+        let dot_u = buffer[hdr + (j * 8) + 2] as u64;
+        let dot_v = buffer[hdr + (j * 8) + 3] as u64;
+        let dot_w = buffer[hdr + (j * 8) + 4] as u64;
+        let dot_x = buffer[hdr + (j * 8) + 5] as u64;
+        let dot_y = buffer[hdr + (j * 8) + 6] as u64;
+        let dot_z = buffer[hdr + (j * 8) + 7] as u64;
 
         let mut bytes: u64 = dot_s << 56;
         bytes = bytes | (dot_t << 48);
@@ -90,14 +106,14 @@ fn main () {
 
         // each of the 8 bytes
         let j:usize = (i - offset) as usize;
-        let dot_s = buffer[8 + (j * 8) + 0] as u64;
-        let dot_t = buffer[8 + (j * 8) + 1] as u64;
-        let dot_u = buffer[8 + (j * 8) + 2] as u64;
-        let dot_v = buffer[8 + (j * 8) + 3] as u64;
-        let dot_w = buffer[8 + (j * 8) + 4] as u64;
-        let dot_x = buffer[8 + (j * 8) + 5] as u64;
-        let dot_y = buffer[8 + (j * 8) + 6] as u64;
-        let dot_z = buffer[8 + (j * 8) + 7] as u64;
+        let dot_s = buffer[hdr + (j * 8) + 0] as u64;
+        let dot_t = buffer[hdr + (j * 8) + 1] as u64;
+        let dot_u = buffer[hdr + (j * 8) + 2] as u64;
+        let dot_v = buffer[hdr + (j * 8) + 3] as u64;
+        let dot_w = buffer[hdr + (j * 8) + 4] as u64;
+        let dot_x = buffer[hdr + (j * 8) + 5] as u64;
+        let dot_y = buffer[hdr + (j * 8) + 6] as u64;
+        let dot_z = buffer[hdr + (j * 8) + 7] as u64;
 
         let mut bytes: u64 = dot_s << 56;
         bytes = bytes | (dot_t << 48);
