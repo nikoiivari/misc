@@ -597,7 +597,5 @@ NOTE TO SELF: Everything is made out of tuples. Tuples are a binary tree datastr
 
 A tuple of tuples
 
-
-
-
-Witch bit to switch on? The 
+TODO: Think of the string object type and how it could also be used to store quadtrees and
+octrees.
