@@ -597,5 +597,19 @@ NOTE TO SELF: Everything is made out of tuples. Tuples are a binary tree datastr
 
 A tuple of tuples
 
+The string datastructure should accelerate the following organisition of data: 1D two-fields,
+2D four-fields (quadtrees), and 3D eight-fields (octrees).
+
 TODO: Think of the string object type and how it could also be used to store quadtrees and
 octrees.
+
+TODO: the 4 byte prefix in german strings is useful in string searches, such as used in 
+database systems. In german strings the first four bytes of the short string presentation
+overlaps with the four bytes of the prefix field in the long string presentation. This 
+feature should be adopted here also!
+
+https://cedardb.com/blog/german_strings/
+
+
+The string object type stores tokenized strings. A token can be up to 255 bytes long and is
+stored like a pascal string, with the first byte containing the length of the token.
