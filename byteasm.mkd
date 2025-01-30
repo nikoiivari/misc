@@ -603,6 +603,8 @@ The string datastructure should accelerate the following organisition of data: 1
 TODO: Think of the string object type and how it could also be used to store quadtrees and
 octrees.
 
+Heap as a binary tree described here: https://en.wikipedia.org/wiki/Binary_heap
+
 TODO: the 4 byte prefix in german strings is useful in string searches, such as used in 
 database systems. In german strings the first four bytes of the short string presentation
 overlaps with the four bytes of the prefix field in the long string presentation. This 
