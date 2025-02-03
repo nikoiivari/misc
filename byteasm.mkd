@@ -615,3 +615,11 @@ https://cedardb.com/blog/german_strings/
 
 The string object type stores tokenized strings. A token can be up to 255 bytes long and is
 stored like a pascal string, with the first byte containing the length of the token.
+
+---
+Muistilappu (poista myöhemmin):
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC3971164/
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC3478568/
+
