@@ -686,24 +686,3 @@ stored like a pascal string, with the first byte containing the length of the to
 0000 0010 0100  :36
 0000 0010 0110  :38
 ...
-
-## Sequence of something else
-
-...
-0000 0010 0010  :34 *
-0000 0010 1000  :40
-0000 1000 1010  :138
-0000 1010 0010  :162
-0010 0010 1000  :552
-0010 1000 1010  :650
-1000 1010 0010  :2210
-1010 0010 1000  :2600
-
----
-
-Muistilappu (poista myöhemmin):
-
-https://pmc.ncbi.nlm.nih.gov/articles/PMC3971164/
-
-https://pmc.ncbi.nlm.nih.gov/articles/PMC3478568/
-
