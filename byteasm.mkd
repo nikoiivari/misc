@@ -595,7 +595,7 @@ immediately after.
 
 NOTE TO SELF: Everything is made out of tuples. Tuples are a binary tree datastructure.
 
-A tuple of tuples
+A tuple of tuples. Can a binary tree be used to store tuples in a searchable form?
 
 The string datastructure should accelerate the following organisition of data: 1D two-fields,
 2D four-fields (quadtrees), and 3D eight-fields (octrees).
@@ -614,9 +614,21 @@ feature should be adopted here also!
 
 https://cedardb.com/blog/german_strings/
 
+One register is 8 bytes. The prefix should fit in 8 bytes, but can be longer than 4 bytes.
+What of the string fits into on register could be called a "snippet."
+
+The snippet could have .s be length, with the most significant bit used as a flag for other
+behaviour. The seven lower bits are the length of the string.
+
 
 The string object type stores tokenized strings. A token can be up to 255 bytes long and is
 stored like a pascal string, with the first byte containing the length of the token.
+
+
+
+
+--- snip ---
+Not going to implement fibonacci-heap. Fibonacci numbers not needed?
 
 ## Fibonacci numbers in binary
 
