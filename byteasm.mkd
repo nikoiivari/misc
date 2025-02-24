@@ -615,14 +615,14 @@ feature should be adopted here also!
 https://cedardb.com/blog/german_strings/
 
 One register is 8 bytes. The prefix should fit in 8 bytes, but can be longer than 4 bytes.
-What of the string fits into on register could be called a "snippet."
+What of the string fits into one register could be called a "snippet."
 
-The snippet could have .s be length, with the most significant bit used as a flag for other
-behaviour. The seven lower bits are the length of the string.
+The register could have .s be length. The string can be up to 255 bytes long. If bits 3-7
+are zero then only a snippet is stored in the next 7 bytes of the register. 
 
-
-The string object type stores tokenized strings. A token can be up to 255 bytes long and is
-stored like a pascal string, with the first byte containing the length of the token.
+The string object type stores tokenized strings. A token can be up to 256 bytes long and
+stored like a pascal string, with the first byte containing the length of the token. Thus
+it can store up to 255 bytes of text.
 
 
 
