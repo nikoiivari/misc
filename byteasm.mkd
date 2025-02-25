@@ -607,6 +607,24 @@ Heap as a binary tree described here: https://en.wikipedia.org/wiki/Binary_heap
 
 Bi-parental Heap, or beap described here: https://en.wikipedia.org/wiki/Beap
 
+A beap needs these functions:
+
+- Create beap
+- Replace
+- Delete
+- Insert
+- Search
+
+- newFrom: < string literal >
+- newFrom: < byte buffer >
+- newWithReplacements:
+- newWithDeletions:
+- newWithInsertions:
+- find: < string literal >
+- find: < byte buffer >
+
+## String
+
 TODO: the 4 byte prefix in german strings is useful in string searches, such as used in 
 database systems. In german strings the first four bytes of the short string presentation
 overlaps with the four bytes of the prefix field in the long string presentation. This 
