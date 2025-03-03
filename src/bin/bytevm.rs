@@ -21,6 +21,7 @@ struct Reg {
 // echo -en "\xde\xad\xbe\xef\xde\xad\xbe\xe2" >> symbols.xe
 // echo -en "\xff\xff\xff\xff\x00\x00\x00\x00" >> symbols.xe
 // echo -en "\xff\xff\xff\xff\x00\x00\x00\x01" >> symbols.xe
+// echo -en "\x58\x58\x58\x58\x58\x58\x58\x58" >> symbols.xe
 
 // To dump 8 bytes per line as hexadecimal:
 // od -A x -t x1z -w8 symbols.xe
