@@ -58,12 +58,12 @@ fn main () {
     datasize = datasize | (ds3b << 16); // 24bits of datasize (static data before heap)
     println!("datasize: {:x}", datasize);
 
-    let mut numscope:u32 = buffer[12] as u32; //lowest byte
-    let ns2b: u32 = buffer[11] as u32;
-    let ns3b: u32 = buffer[10] as u32;    
-    numscope = numscope | (ns2b << 8);
-    numscope = numscope | (ns3b << 16); // 24bits of numscope
-    println!("numscope: {:x}", numscope);
+    let mut mainsize:u32 = buffer[12] as u32; //lowest byte
+    let ms2b: u32 = buffer[11] as u32;
+    let ms3b: u32 = buffer[10] as u32;    
+    mainsize = mainsize | (ms2b << 8);
+    mainsize = mainsize | (ms3b << 16); // 24bits of numscope
+    println!("mainsize: {:x}", mainsize);
 
     let mut entry:u32 = buffer[15] as u32; //lowest byte
     let e2b: u32 = buffer[14] as u32;
@@ -128,10 +128,38 @@ fn main () {
         cache[i as usize].bits = bytes;
         println!("{:x}: {:x}", i, bytes);
     }
-
+    
     // At this point code and initialized data is loaded in to cache. The next thing to do
-    // is to instantiate variables from scope main into the heap that starts immediately
-    // after the initialized data area, and start executing fun main.
+    // is to set up scope main in the heap, zero it out, and also set WBR bit.
 
+    for i in (offset + codesize + datasize)..(offset + codesize + datasize + mainsize) {
+        cache[i as usize].wbr = false;
+        cache[i as usize].cap = false;
+
+        // each of the 8 bytes
+        let j:usize = (i - offset) as usize;
+        let dot_s = buffer[hdr + (j * 8) + 0] as u64;
+        let dot_t = buffer[hdr + (j * 8) + 1] as u64;
+        let dot_u = buffer[hdr + (j * 8) + 2] as u64;
+        let dot_v = buffer[hdr + (j * 8) + 3] as u64;
+        let dot_w = buffer[hdr + (j * 8) + 4] as u64;
+        let dot_x = buffer[hdr + (j * 8) + 5] as u64;
+        let dot_y = buffer[hdr + (j * 8) + 6] as u64;
+        let dot_z = buffer[hdr + (j * 8) + 7] as u64;
+
+        let mut bytes: u64 = dot_s << 56;
+        bytes = bytes | (dot_t << 48);
+        bytes = bytes | (dot_u << 40);
+        bytes = bytes | (dot_v << 32);
+        bytes = bytes | (dot_w << 24);
+        bytes = bytes | (dot_x << 16);
+        bytes = bytes | (dot_y <<  8);
+        bytes = bytes | dot_z;
+
+        cache[i as usize].bits = bytes;
+        println!("{:x}: {:x}", i, bytes);
+    }
+
+    // At this point...
 
 }
