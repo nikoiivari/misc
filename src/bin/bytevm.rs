@@ -21,7 +21,6 @@ struct Reg {
 // echo -en "\xde\xad\xbe\xef\xde\xad\xbe\xe2" >> symbols.xe
 // echo -en "\xff\xff\xff\xff\x00\x00\x00\x00" >> symbols.xe
 // echo -en "\xff\xff\xff\xff\x00\x00\x00\x01" >> symbols.xe
-// echo -en "\x58\x58\x58\x58\x58\x58\x58\x58" >> symbols.xe
 
 // To dump 8 bytes per line as hexadecimal:
 // od -A x -t x1z -w8 symbols.xe
@@ -31,7 +30,7 @@ struct Reg {
 
 fn main () {
     // Cache of 4096 registers. (16 pages of 256 each). ~32KB cache
-    let mut cache: [Reg; 4096] = [Reg {wbr: false, cap: false, bits: 0}; 4096];
+    let mut cache: [Reg; 4096] = [Reg {wbr: true, cap: false, bits: 0}; 4096];
 
     // Accum of 4096 registers. (16 pages of 256 each). ~32KB accum
     let mut _accum: [Reg; 4096];
@@ -133,19 +132,17 @@ fn main () {
     // is to set up scope main in the heap, zero it out, and also set WBR bit.
 
     for i in (offset + codesize + datasize)..(offset + codesize + datasize + mainsize) {
-        cache[i as usize].wbr = false;
+        cache[i as usize].wbr = true;
         cache[i as usize].cap = false;
 
-        // each of the 8 bytes
-        let j:usize = (i - offset) as usize;
-        let dot_s = buffer[hdr + (j * 8) + 0] as u64;
-        let dot_t = buffer[hdr + (j * 8) + 1] as u64;
-        let dot_u = buffer[hdr + (j * 8) + 2] as u64;
-        let dot_v = buffer[hdr + (j * 8) + 3] as u64;
-        let dot_w = buffer[hdr + (j * 8) + 4] as u64;
-        let dot_x = buffer[hdr + (j * 8) + 5] as u64;
-        let dot_y = buffer[hdr + (j * 8) + 6] as u64;
-        let dot_z = buffer[hdr + (j * 8) + 7] as u64;
+        let dot_s = 0 as u64;
+        let dot_t = 0 as u64;
+        let dot_u = 0 as u64;
+        let dot_v = 0 as u64;
+        let dot_w = 0 as u64;
+        let dot_x = 0 as u64;
+        let dot_y = 0 as u64;
+        let dot_z = 0 as u64;
 
         let mut bytes: u64 = dot_s << 56;
         bytes = bytes | (dot_t << 48);
@@ -159,7 +156,5 @@ fn main () {
         cache[i as usize].bits = bytes;
         println!("{:x}: {:x}", i, bytes);
     }
-
-    // At this point...
 
 }
