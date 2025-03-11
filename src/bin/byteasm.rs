@@ -249,7 +249,7 @@ fn parse_code ( code:String,
             "then" => println!("if then..."),
             "else" => println!("if else..."),
             "fi"  => println!("if ends."),
-            &_ => o = parse_op(v),
+            &_ => println!("TODO: parse op..."),
         }
     }
     
@@ -366,55 +366,14 @@ fn parse_id_myxeh (v:Vec<&str>) -> Id {
     i
 }
 
-fn parse_op (v:Vec<&str>) -> Op {
-    println!("something else.");
-    let o:Op = Op {
-        opcode: 0x0,
-        param1: 0x0,
-        param2: 0x0,
-        param3: 0x0,
-        numparams: 0x0,
-    };
-
-    let mut varoffs: Vec<u8> = vec![];
-    //Find out if op is an assignment op.
-    for tok in v {
-        //println!("{:?}", tok.rfind('='));
-        //let _equalssign = tok.rfind('=').unwrap();
-        //Argh...
-        if true {
-            parse_assignment(tok, &mut varoffs);
-        } else {
-            parse_other(tok, &mut varoffs);
-        }
-    }
-
-    o
-}
-
-fn parse_assignment(_tok: &str, _varoffs: &mut Vec<u8>) {
-
-}
-
-fn parse_other(_tok: &str, _varoffs: &mut Vec<u8>) {
-    // if tis a @ (a) or $ (c) sub-capability TODO...
-
-    // if tis a method invocation (i) TODO...
-
-    // if tis a value (immediate value returned in varoffs) TODO: read values
-
-    // if tis a label (return index in pattern, offset in varoffs)
-
-}
-
-//TODO: actually read values
+//TODO: actually read hexym values!!!
 //fn is_hex_byte(tok: &str, value: &mut u8) -> bool {
 
 //}
 
-fn is_varinout (_tok: &str,  ) -> bool {
-    true
-}
+//fn is_varinout (_tok: &str,  ) -> bool {
+//    true
+//}
 
 
 
@@ -448,6 +407,8 @@ fn write_xe_header (ob: &mut Vec<u8>, codesize: u32, datasize: u32, numscope: u3
     ob.push(((entry & 0b00000000000000000000000011111111)) as u8);
 }
 
+
+//TODO: actually write 
 //fn write_exe_code (ob: &mut Vec<u8>, codesize: u32, ) {
 
 //}

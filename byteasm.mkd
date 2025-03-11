@@ -479,20 +479,20 @@ Eight instructions execute in parallel. Undefined instructions can be trapped.
 ```
 | bit 6-7:| bit 0-5:                    |
 |----|----|----|----|----|----|----|----|
-| p.type  | opcode                      |
+| p.num   | opcode                      |
 ```
 
-### i.type field in the two most significant bits
+### p.num field in the two most significant bits
 
-The two most significant bits convey the instruction type. The different
+The two most significant bits convey the number of parameters. The different
 posibilities for these bits are:
 
-| p.type       | Meaning                      |
-|--------------|------------------------------|
-| p.type = 11b | Three parameter bytes follow |
-| p.type = 10b | Two parameter bytes follow   |
-| p.type = 01b | One parameter byte follows   |
-| p.type = 00b | No parameter bytes follow    |
+| p.num       | Meaning                      |
+|-------------|------------------------------|
+| p.num = 11b | Three parameter bytes follow |
+| p.num = 10b | Two parameter bytes follow   |
+| p.num = 01b | One parameter byte follows   |
+| p.num = 00b | No parameter bytes follow    |
 
 The instruction lanes don't need to be aligned. New instructions may be introduced
 on one lane, while other lanes are still reading parameter bytes for previous
@@ -502,7 +502,9 @@ The 6bit opcode field can specify the opcode 0-63
 
 | opcode  | Functionality                                                     |
 |---------|-------------------------------------------------------------------|
-| 000000b | nop -- No Operation.                                              |
+| 000000b | 00b zero params -- nop, No Operation.                             |
+|         | There is room for zero as opcode with 01b, 10b, and 11b params... |
+|         |                                                                   |
 | 000001b | ... some other instruction, perhaps undefined, and trapped.       |
 | 000010b | ... some other instruction, perhaps undefined, and trapped.       |
 | 000011b | ... as above ...                                                  |
@@ -510,12 +512,7 @@ The 6bit opcode field can specify the opcode 0-63
 | 000100b | 01b one param: offset from beginning of scope;  accum = @         |
 | 000000b | 10b two params: first reg and last reg;         @ = @[0:0...3]    |
 | 000000b | 01b one param: number of regs in subset;        @subset 4         |
-| 000000b | 01b one param: bitpositions to shift left;      @ << 3 b0         |
-| 000000b | 01b one param: bitpositions to shift right;     @ >> 3 b0         |
-| 000000b | 01b one param: bitpositions to shift left;      @ << 3 b1         |
-| 000000b | 01b one param: bitpositions to shift right;     @ >> 3 b1         |
-| 000000b | 01b one param: bitpositions to rotate left;     @ << 3            |
-| 000000b | 01b one param: bitpositions to rotate right;    @ >> 3            |
+|         |                                                                   |
 | 000101b | 01b one param: offset from beginning of scope;  @ = accum         |
 | 000000b | 10b two params: offset and immediate value;     status = 00h      |
 | 000000b | 10b two params: offset and scope;     sthing = instance something |
