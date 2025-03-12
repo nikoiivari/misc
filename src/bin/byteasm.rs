@@ -6,22 +6,28 @@ use std::io::Read;
 use std::io::Write;
 
 #[derive(Debug)]
-struct Op {
-    opcode:u8,
-    param1:u8,
-    param2:u8,
-    param3:u8,
-    numparams: usize,
+struct OpRow {
+    s:u8,
+    t:u8,
+    u:u8,
+    v:u8,
+    w:u8,
+    x:u8,
+    y:u8,
+    z:u8,
 }
 
-impl Op {
-    pub fn new(opcode:u8, param1:u8, param2:u8, param3:u8, numparams:usize,) -> Self {
-        Op {
-            opcode: opcode,
-            param1: param1,
-            param2: param2,
-            param3: param3,
-            numparams: numparams,
+impl OpRow {
+    pub fn new(s:u8, t:u8, u:u8, v:u8, w:u8, x:u8, y:u8, z:u8) -> Self {
+        OpRow {
+            s: s,
+            t: t,
+            u: u,
+            v: v,
+            w: w,
+            x: x,
+            y: y,
+            z: z,
         }
     }
 }
@@ -156,7 +162,7 @@ fn main ()
 
             // parse instruction
             if "" != code {
-                let _o:Op; let i:Id;
+                let _o:OpRow; let i:Id;
                 (_o, i) = parse_code(code, &ids, &funstack, &varinoutstack);
                 //println!("{:?}, {:?}", o, i);
                 if IdType::Idfun == i.it {                    
@@ -196,15 +202,18 @@ fn main ()
 fn parse_code ( code:String,
                 ids:&Vec<Id>,
                 funstack:&Vec<u32>,
-                _varinoutstack:&Vec<u32>) -> (Op, Id)
+                _varinoutstack:&Vec<u32>) -> (OpRow, Id)
 {
     
-    let mut o: Op = Op {
-        opcode: 0x0,
-        param1: 0x0,
-        param2: 0x0,
-        param3: 0x0,
-        numparams: 0x0, 
+    let o: OpRow = OpRow {
+        s: 0x0,
+        t: 0x0,
+        u: 0x0,
+        v: 0x0,
+        w: 0x0,
+        x: 0x0,
+        y: 0x0,
+        z: 0x0,
     };
     let mut i: Id = Id {
         it: IdType::IdNotAnId,
@@ -249,7 +258,7 @@ fn parse_code ( code:String,
             "then" => println!("if then..."),
             "else" => println!("if else..."),
             "fi"  => println!("if ends."),
-            &_ => println!("TODO: parse op..."),
+            &_ => parse_hexym_line(v), 
         }
     }
     
@@ -367,14 +376,10 @@ fn parse_id_myxeh (v:Vec<&str>) -> Id {
 }
 
 //TODO: actually read hexym values!!!
-//fn is_hex_byte(tok: &str, value: &mut u8) -> bool {
-
-//}
-
-//fn is_varinout (_tok: &str,  ) -> bool {
-//    true
-//}
-
+fn parse_hexym_line(v: Vec<&str>) {
+    println!("{:?}", v);
+    //let ret:u64 = 0;
+}
 
 
 //==== Writing the executable ====
