@@ -7,27 +7,15 @@ use std::io::Write;
 
 #[derive(Debug)]
 struct OpRow {
-    s:u8,
-    t:u8,
-    u:u8,
-    v:u8,
-    w:u8,
-    x:u8,
-    y:u8,
-    z:u8,
+    oprow: u64,
+    state: u64,
 }
 
 impl OpRow {
-    pub fn new(s:u8, t:u8, u:u8, v:u8, w:u8, x:u8, y:u8, z:u8) -> Self {
+    pub fn new(oprow:u64, state:u64) -> Self {
         OpRow {
-            s: s,
-            t: t,
-            u: u,
-            v: v,
-            w: w,
-            x: x,
-            y: y,
-            z: z,
+            oprow: oprow,
+            state: state,
         }
     }
 }
@@ -205,16 +193,7 @@ fn parse_code ( code:String,
                 _varinoutstack:&Vec<u32>) -> (OpRow, Id)
 {
     
-    let o: OpRow = OpRow {
-        s: 0x0,
-        t: 0x0,
-        u: 0x0,
-        v: 0x0,
-        w: 0x0,
-        x: 0x0,
-        y: 0x0,
-        z: 0x0,
-    };
+    let mut o: OpRow = OpRow::new(0x0, 0x0);
     let mut i: Id = Id {
         it: IdType::IdNotAnId,
         param: "".to_string(),
@@ -258,7 +237,7 @@ fn parse_code ( code:String,
             "then" => println!("if then..."),
             "else" => println!("if else..."),
             "fi"  => println!("if ends."),
-            &_ => parse_hexym_line(v), 
+            &_ => o = parse_hexym_line(v), 
         }
     }
     
@@ -376,9 +355,11 @@ fn parse_id_myxeh (v:Vec<&str>) -> Id {
 }
 
 //TODO: actually read hexym values!!!
-fn parse_hexym_line(v: Vec<&str>) {
+fn parse_hexym_line(v: Vec<&str>) -> OpRow {
     println!("{:?}", v);
     //let ret:u64 = 0;
+    let o = OpRow::new(0x0, 0x0);
+    o
 }
 
 
