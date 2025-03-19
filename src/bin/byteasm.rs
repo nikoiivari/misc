@@ -237,7 +237,7 @@ fn parse_code ( code:String,
             "then" => println!("if then..."),
             "else" => println!("if else..."),
             "fi"  => println!("if ends."),
-            &_ => o = parse_hexym_line(v), 
+            &_ => o = parse_hexym_line(v), //TODO: fix panic here! hexym stack???
         }
     }
     
@@ -357,9 +357,24 @@ fn parse_id_myxeh (v:Vec<&str>) -> Id {
 //TODO: actually read hexym values!!!
 fn parse_hexym_line(v: Vec<&str>) -> OpRow {
     println!("{:?}", v);
+    // read byte from hexadecimal
+    let s:u8 = parse_hexym_byte(v[0]);
     //let ret:u64 = 0;
     let o = OpRow::new(0x0, 0x0);
     o
+}
+
+fn parse_hexym_byte(s: &str) -> u8 {
+    if 2 != s.len() { println!("Error: Hexym byte is to be exactly two characters."); }
+    let chvec: Vec<char> = s.chars().collect();
+    let ch0:char = chvec[0];
+    let ch1:char = chvec[1];
+    if !ch0.is_ascii_hexdigit() { println!("Error: Not a hexdigit."); }
+    let bhi:u8 = ch0.to_digit(16).unwrap() as u8;
+    if !ch1.is_ascii_hexdigit() { println!("Errot: Not a hexdigit."); }
+    let blo:u8 = ch1.to_digit(16).unwrap() as u8;
+    let b = (bhi << 4) | blo;
+    b
 }
 
 
