@@ -105,6 +105,22 @@ impl Id {
     }
 }
 
+struct ParserState {
+    in_hexym: bool,
+    in_scope: bool,
+    in_fun: bool,
+}
+
+impl ParserState {
+    pub fn new(in_hexym: bool, in_scope: bool, in_fun: bool) -> Self {
+        ParserState {
+            in_hexym: in_hexym,
+            in_scope: in_scope,
+            in_fun: in_fun,
+        }
+    }
+}
+
 //====
 
 //====
@@ -120,6 +136,7 @@ fn main ()
     let mut ids: Vec<Id> = vec![];
     let mut funstack: Vec<u32> = vec![];
     let mut varinoutstack: Vec<u32> = vec![];
+    let mut ps: ParserState = ParserState::new(false, false, false);
     
     let mut infilepath: &str = "bin.out";
 
@@ -148,10 +165,10 @@ fn main ()
                 code = line_trimmed.to_string();
             }
 
-            // parse instruction
+            // parse code
             if "" != code {
                 let _o:OpRow; let i:Id;
-                (_o, i) = parse_code(code, &ids, &funstack, &varinoutstack);
+                (_o, i ) = parse_code(code, &ids, &funstack, &varinoutstack, &mut ps);
                 //println!("{:?}, {:?}", o, i);
                 if IdType::Idfun == i.it {                    
                     ids.push(i);
@@ -190,7 +207,8 @@ fn main ()
 fn parse_code ( code:String,
                 ids:&Vec<Id>,
                 funstack:&Vec<u32>,
-                _varinoutstack:&Vec<u32>) -> (OpRow, Id)
+                _varinoutstack:&Vec<u32>,
+                ps:&mut ParserState ) -> (OpRow, Id)
 {
     
     let mut o: OpRow = OpRow::new(0x0, 0x0);
@@ -227,8 +245,8 @@ fn parse_code ( code:String,
             "fun" => i = parse_id_fun(v),
             "return" => println!("function returns before completion..."),
             "nuf" => i = parse_id_nuf(v, ids, funstack),
-            "hexym" => i = parse_id_hexym(v),
-            "myxeh" => i = parse_id_myxeh(v),
+            "hexym" => i = parse_id_hexym(v, ps),
+            "myxeh" => i = parse_id_myxeh(v, ps),
             "case" => println!("case sth..."),
             "esac" => println!("case ends."),
             "fit" => println!("fit sth..."),
@@ -237,7 +255,7 @@ fn parse_code ( code:String,
             "then" => println!("if then..."),
             "else" => println!("if else..."),
             "fi"  => println!("if ends."),
-            &_ => o = parse_op_line(v), //TODO: This needs to know if it is in a hexym block.
+            &_ => o = parse_op_line(v, ps), //TODO: This needs to know if it is in a hexym block.
         }
     }
     
@@ -342,14 +360,16 @@ fn parse_id_nuf (v:Vec<&str>, ids:&Vec<Id>, funstack:&Vec<u32>) -> Id {
 //TODO: parsing tuples is needed for taking fun parameters
 //fn parse_id_tuple () -> Id {}
 
-fn parse_id_hexym (v:Vec<&str>) -> Id {
+fn parse_id_hexym (v:Vec<&str>, ps:&mut ParserState) -> Id {
     println!("{:?}", v);
+    ps.in_hexym = true;
     let i:Id = Id::new(IdType::Idhexym, "".to_string());
     i
 }
 
-fn parse_id_myxeh (v:Vec<&str>) -> Id {
+fn parse_id_myxeh (v:Vec<&str>, ps:&mut ParserState) -> Id {
     println!("{:?}", v);
+    ps.in_hexym = false;
     let i:Id = Id::new(IdType::Idmyxeh, "".to_string());
     i
 }
@@ -377,7 +397,7 @@ fn parse_hexym_byte(s: &str) -> u8 {
     b
 }
 
-fn parse_op_line(v: Vec<&str>) -> OpRow {
+fn parse_op_line(v: Vec<&str>, ps: &ParserState) -> OpRow {
     // Op can be a hexym row or an assignment
     // Figure out which one it is:
 
