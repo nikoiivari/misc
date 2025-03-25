@@ -379,7 +379,16 @@ fn parse_hexym_line(v: Vec<&str>) -> OpRow {
     println!("{:?}", v);
     // read byte from hexadecimal
     let s:u8 = parse_hexym_byte(v[0]);
-    //
+    let t:u8 = parse_hexym_byte(v[1]);
+    let u:u8 = parse_hexym_byte(v[2]);
+    let v:u8 = parse_hexym_byte(v[3]);
+    //let w:u8 = parse_hexym_byte(v[4]); //FIXME wierd!
+    //let x:u8 = parse_hexym_byte(v[5]);
+    //let y:u8 = parse_hexym_byte(v[6]);
+    //let z:u8 = parse_hexym_byte(v[7]);
+    
+    //TODO: pack together in a u64
+    println!("{:?}", s);
     let o = OpRow::new(0x0, 0x0);
     o
 }
@@ -402,10 +411,13 @@ fn parse_op_line(v: Vec<&str>, ps: &ParserState) -> OpRow {
     // Figure out which one it is:
 
     // Find out if in a hexym block.
-
-    // ...until then just return a zero OpRow
-    let o = OpRow::new(0x0, 0x0);
-    o
+    if true == ps.in_hexym { 
+        let o:OpRow = parse_hexym_line(v);
+        return o
+    } else { // Not in a hexym block
+        let o = OpRow::new(0x0, 0x0);
+        return o
+    }
 }
 
 //==== Writing the executable ====
