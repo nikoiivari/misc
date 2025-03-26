@@ -255,7 +255,7 @@ fn parse_code ( code:String,
             "then" => println!("if then..."),
             "else" => println!("if else..."),
             "fi"  => println!("if ends."),
-            &_ => o = parse_op_line(v, ps), //TODO: This needs to know if it is in a hexym block.
+            &_ => o = parse_op_line(v, ps),
         }
     }
     
@@ -375,21 +375,30 @@ fn parse_id_myxeh (v:Vec<&str>, ps:&mut ParserState) -> Id {
 }
 
 //TODO: actually read hexym values!!!
-fn parse_hexym_line(v: Vec<&str>) -> OpRow {
-    println!("{:?}", v);
+fn parse_hexym_line(ve: Vec<&str>) -> OpRow {
+    println!("{:?}", ve);
     // read byte from hexadecimal
-    let s:u8 = parse_hexym_byte(v[0]);
-    let t:u8 = parse_hexym_byte(v[1]);
-    let u:u8 = parse_hexym_byte(v[2]);
-    let v:u8 = parse_hexym_byte(v[3]);
-    //let w:u8 = parse_hexym_byte(v[4]); //FIXME wierd!
-    //let x:u8 = parse_hexym_byte(v[5]);
-    //let y:u8 = parse_hexym_byte(v[6]);
-    //let z:u8 = parse_hexym_byte(v[7]);
+    let s:u8 = parse_hexym_byte(ve[0]);
+    let t:u8 = parse_hexym_byte(ve[1]);
+    let u:u8 = parse_hexym_byte(ve[2]);
+    let v:u8 = parse_hexym_byte(ve[3]);
+    let w:u8 = parse_hexym_byte(ve[4]);
+    let x:u8 = parse_hexym_byte(ve[5]);
+    let y:u8 = parse_hexym_byte(ve[6]);
+    let z:u8 = parse_hexym_byte(ve[7]);
     
-    //TODO: pack together in a u64
-    println!("{:?}", s);
-    let o = OpRow::new(0x0, 0x0);
+    //println!("{:?} {:?} {:?} {:?} {:?} {:?} {:?} {:?}", s, t, u, v, w, x, y, z);
+    // pack together in a u64
+    let mut reg:u64 = z as u64;
+    reg = reg | (y as u64) << 8;
+    reg = reg | (x as u64) << 16;
+    reg = reg | (w as u64) << 24;
+    reg = reg | (v as u64) << 32;
+    reg = reg | (u as u64) << 40;
+    reg = reg | (t as u64) << 48;
+    reg = reg | (s as u64) << 56;
+    println!("{:?}", reg);
+    let o = OpRow::new(reg, 0x0);
     o
 }
 
@@ -415,7 +424,7 @@ fn parse_op_line(v: Vec<&str>, ps: &ParserState) -> OpRow {
         let o:OpRow = parse_hexym_line(v);
         return o
     } else { // Not in a hexym block
-        let o = OpRow::new(0x0, 0x0);
+        let o = OpRow::new(0x0, 0x0); //TODO: How to parse assignments?
         return o
     }
 }
