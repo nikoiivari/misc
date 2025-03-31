@@ -105,6 +105,7 @@ impl Id {
     }
 }
 
+#[derive(Debug)]
 struct ParserState {
     in_hexym: bool,
     in_scope: bool,
@@ -371,6 +372,15 @@ fn parse_id_myxeh (v:Vec<&str>, ps:&mut ParserState) -> Id {
     println!("{:?}", v);
     ps.in_hexym = false;
     let i:Id = Id::new(IdType::Idmyxeh, "".to_string());
+    println!("{:?}", ps);
+    // longhand way of changing one field of a struct using a shorthand
+    // for changing all the fields of a struct (*ps is dereferenced).
+    *ps = ParserState {
+        in_hexym: ps.in_hexym,
+        in_scope: ps.in_scope,
+        in_fun: true,
+    };
+    println!("{:?}", ps);
     i
 }
 
