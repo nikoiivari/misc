@@ -110,14 +110,16 @@ struct ParserState {
     in_hexym: bool,
     in_scope: bool,
     in_fun: bool,
+    obpos: usize,
 }
 
 impl ParserState {
-    pub fn new(in_hexym: bool, in_scope: bool, in_fun: bool) -> Self {
+    pub fn new(in_hexym: bool, in_scope: bool, in_fun: bool, obpos: usize) -> Self {
         ParserState {
             in_hexym: in_hexym,
             in_scope: in_scope,
             in_fun: in_fun,
+            obpos: obpos,
         }
     }
 }
@@ -137,11 +139,16 @@ fn main ()
     let mut ids: Vec<Id> = vec![];
     let mut funstack: Vec<u32> = vec![];
     let mut varinoutstack: Vec<u32> = vec![];
-    let mut ps: ParserState = ParserState::new(false, false, false);
+    let mut ps: ParserState = ParserState::new(false, false, false, 0x0);
     
     let mut infilepath: &str = "bin.out";
 
-    let mut ob = Vec::<u8>::new(); //Out buffer ob
+    let mut ob = Vec::<u8>::new();
+    
+    // ==== Write executable file into outbuffer (ob) ====
+
+    write_xe_header(&mut ob, 0x000003, 0x000002, 0x000001, 0x00000);
+    ps.obpos = 8 * 2; // oprows start after header
     
     //commandline args
     let args: Vec<String> = env::args().collect();
@@ -166,10 +173,13 @@ fn main ()
                 code = line_trimmed.to_string();
             }
 
+            let mut o:OpRow = OpRow::new(0x0, 0x0);
+            let i:Id;
+
             // parse code
             if "" != code {
-                let _o:OpRow; let i:Id;
-                (_o, i ) = parse_code(code, &ids, &funstack, &varinoutstack, &mut ps);
+                
+                (o, i) = parse_code(code, &ids, &funstack, &varinoutstack, &mut ps);
                 //println!("{:?}, {:?}", o, i);
                 if IdType::Idfun == i.it {                    
                     ids.push(i);
@@ -188,12 +198,13 @@ fn main ()
                     ids.push(i);
                 }
             } // else an empty code; ignore empty code
+            
+            // TODO: Write ops when available.
+            write_xe_oprow (&mut ob, o, &mut ps);
         }
     }
-
-    // ==== Write executable file ====
-
-    write_xe_header(&mut ob, 0x000003, 0x000002, 0x000001, 0x00000);
+   
+    // ==== Write outbuffer (ob) into file ====
     
     // strip file extension from infilepath
     let pathparts: Vec<&str> = infilepath.split('.').collect();
@@ -462,6 +473,15 @@ fn write_xe_header (ob: &mut Vec<u8>, codesize: u32, datasize: u32, numscope: u3
 
 
 //TODO: actually write 
-//fn write_exe_code (ob: &mut Vec<u8>, codesize: u32, ) {
+fn write_xe_oprow (ob: &mut Vec<u8>, o: OpRow, ps: &mut ParserState) {
+    ob[ps.obpos] =     ( o.oprow >> 56        ) as u8;
+    ob[ps.obpos + 1] = ((o.oprow >> 48) & 0xff) as u8;
+    ob[ps.obpos + 2] = ((o.oprow >> 40) & 0xff) as u8;
+    ob[ps.obpos + 3] = ((o.oprow >> 32) & 0xff) as u8;
+    ob[ps.obpos + 4] = ((o.oprow >> 24) & 0xff) as u8;
+    ob[ps.obpos + 5] = ((o.oprow >> 16) & 0xff) as u8;
+    ob[ps.obpos + 6] = ((o.oprow >> 8)  & 0xff) as u8;
+    ob[ps.obpos + 7] = ( o.oprow        & 0xff) as u8;
 
-//}
+    ps.obpos = ps.obpos + 8;
+}
