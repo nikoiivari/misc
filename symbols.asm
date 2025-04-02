@@ -32,7 +32,7 @@ fun main: (argc, argv)
     hexym
         #accum = @           # save accumulator TODO: the hexym could be more compact?
         44 00 00 00 00 00 00 00
-        00 00 00 00 00 00 00 00 # TODO: nibblemuncher proper offset from scope base
+        55 00 00 00 00 00 00 00 # TODO: nibblemuncher proper offset from scope base
         
         #@ = @[0:0...3]     # Square brackets '[' and ']' imply indexing; not direct memory access
         c7 00 00 00 00 00 00 00

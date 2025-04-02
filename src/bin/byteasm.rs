@@ -110,15 +110,17 @@ struct ParserState {
     in_hexym: bool,
     in_scope: bool,
     in_fun: bool,
+    gen_oprow: bool,
     obpos: usize,
 }
 
 impl ParserState {
-    pub fn new(in_hexym: bool, in_scope: bool, in_fun: bool, obpos: usize) -> Self {
+    pub fn new(in_hexym:bool, in_scope:bool, in_fun:bool, gen_oprow:bool, obpos:usize) -> Self {
         ParserState {
             in_hexym: in_hexym,
             in_scope: in_scope,
             in_fun: in_fun,
+            gen_oprow: gen_oprow,
             obpos: obpos,
         }
     }
@@ -139,7 +141,7 @@ fn main ()
     let mut ids: Vec<Id> = vec![];
     let mut funstack: Vec<u32> = vec![];
     let mut varinoutstack: Vec<u32> = vec![];
-    let mut ps: ParserState = ParserState::new(false, false, false, 0x0);
+    let mut ps: ParserState = ParserState::new(false, false, false, false, 0x0);
     
     let mut infilepath: &str = "bin.out";
 
@@ -199,8 +201,11 @@ fn main ()
                 }
             } // else an empty code; ignore empty code
             
-            // TODO: Write ops when available.
-            write_xe_oprow (&mut ob, o, &mut ps);
+            // TODO: Write ops when available. Only when available, not when not available.
+            if true == ps.gen_oprow {
+                write_xe_oprow (&mut ob, o, &mut ps);
+                ps.gen_oprow = false;
+            }
         }
     }
    
@@ -427,15 +432,17 @@ fn parse_hexym_byte(s: &str) -> u8 {
     b
 }
 
-fn parse_op_line(v: Vec<&str>, ps: &ParserState) -> OpRow {
+fn parse_op_line(v: Vec<&str>, ps: &mut ParserState) -> OpRow {
     // Op can be a hexym row or an assignment
     // Figure out which one it is:
 
     // Find out if in a hexym block.
-    if true == ps.in_hexym { 
+    if true == ps.in_hexym {
+        ps.gen_oprow = true;
         let o:OpRow = parse_hexym_line(v);
         return o
     } else { // Not in a hexym block
+        ps.gen_oprow = false;
         let o = OpRow::new(0x0, 0x0); //TODO: How to parse assignments?
         return o
     }
@@ -471,17 +478,20 @@ fn write_xe_header (ob: &mut Vec<u8>, codesize: u32, datasize: u32, numscope: u3
     ob.push(((entry & 0b00000000000000000000000011111111)) as u8);
 }
 
-
-//TODO: actually write 
 fn write_xe_oprow (ob: &mut Vec<u8>, o: OpRow, ps: &mut ParserState) {
-    ob[ps.obpos] =     ( o.oprow >> 56        ) as u8;
-    ob[ps.obpos + 1] = ((o.oprow >> 48) & 0xff) as u8;
-    ob[ps.obpos + 2] = ((o.oprow >> 40) & 0xff) as u8;
-    ob[ps.obpos + 3] = ((o.oprow >> 32) & 0xff) as u8;
-    ob[ps.obpos + 4] = ((o.oprow >> 24) & 0xff) as u8;
-    ob[ps.obpos + 5] = ((o.oprow >> 16) & 0xff) as u8;
-    ob[ps.obpos + 6] = ((o.oprow >> 8)  & 0xff) as u8;
-    ob[ps.obpos + 7] = ( o.oprow        & 0xff) as u8;
-
-    ps.obpos = ps.obpos + 8;
+    ob.push( ( o.oprow >> 56        ) as u8);
+    ob.push( ((o.oprow >> 48) & 0xff) as u8);
+    ob.push( ((o.oprow >> 40) & 0xff) as u8);
+    ob.push( ((o.oprow >> 32) & 0xff) as u8);
+    ob.push( ((o.oprow >> 24) & 0xff) as u8);
+    ob.push( ((o.oprow >> 16) & 0xff) as u8);
+    ob.push( ((o.oprow >> 8)  & 0xff) as u8);
+    ob.push( ( o.oprow        & 0xff) as u8);
+    
+    ps.obpos = ps.obpos + 8; // TODO: is this needed at all?
 }
+
+//TODO: rewrite .xe header in outbuffer (ob)
+// fn rewrite_xe_header () {
+
+//}
