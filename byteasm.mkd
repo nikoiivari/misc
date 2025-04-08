@@ -525,6 +525,25 @@ The 6bit opcode field can specify the opcode 0-63
 
 | opcode  | Functionality                                                     |
 |---------|-------------------------------------------------------------------|
+| 000000b | one bit vertical add with carry, bit 0                            |
+| 000000b | one bit vertical add with carry  bit 1                            |
+| 000000b | one bit vertical add with carry  bit 2                            |
+| 000000b | one bit vertical add with carry  bit 3                            |
+| 000000b | one bit vertical add with carry  bit 4                            |
+| 000000b | one bit vertical add with carry  bit 5                            |
+| 000000b | one bit vertical add with carry  bit 6                            |
+| 000000b | one bit vertical add with carry  bit 7                            |
+
+Two bytes on top of one another in even and odd registers get added to one another,
+storing result in the same bit column of the next even register. I f there is a carry
+bit, it gets stored in the next bit column to the left... TODO: Think this through. 
+
+
+I forget why I have two similiar tables of instructions... So to clear things up I added
+a third table of instructions inbetween.
+
+| opcode  | Functionality                                                     |
+|---------|-------------------------------------------------------------------|
 | 000100b | 01b one byte:  offset from beginning of scope;  accum = @         |
 | 000101b | 01b one byte:  offset from beginning of scope;  @ = accum         |
 | 000110b | 10b two bytes(*): 1st page-LSB, 2nd page-lsB;   @ = @[0-255:]     |
