@@ -523,6 +523,8 @@ The 6bit opcode field can specify the opcode 0-63
 | 000000b | 10b two params: offset and immediate value;     r2 = 01h          |
 | ...     | ...                                                               |
 
+## One Bit Add With Carry
+
 | opcode  | Functionality                                                     |
 |---------|-------------------------------------------------------------------|
 | 000000b | one bit vertical add with carry, bit 0                            |

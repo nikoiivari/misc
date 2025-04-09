@@ -491,6 +491,10 @@ fn write_xe_oprow (ob: &mut Vec<u8>, o: OpRow, ps: &mut ParserState) {
     ps.obpos = ps.obpos + 8; // TODO: is this needed at all?
 }
 
+//TODO: write static data rows
+// fn write_xe_sdrow () {
+//}
+
 //TODO: rewrite .xe header in outbuffer (ob)
 // fn rewrite_xe_header () {
 
