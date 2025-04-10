@@ -538,11 +538,24 @@ The 6bit opcode field can specify the opcode 0-63
 
 Two bytes on top of one another in even and odd registers get added to one another,
 storing result in the same bit column of the next even register. I f there is a carry
-bit, it gets stored in the next bit column to the left... TODO: Think this through. 
+bit, it gets stored in the next odd register one bit-column to the left.
 
+This works similiar to the XOR truth table, except that if both inputs A and B are 1,
+then output is 0 as it is for XOR, but now the carry bit is set also.
+
+| A | B | OUTPUT     |
+|---|---|------------|
+| 0 | 0 | 0          |
+| 1 | 0 | 1          |
+| 0 | 1 | 1          |
+| 1 | 1 | 0, carry 1 |
+
+When the carry bit is placed one bit-column to the left in the next odd register, this
+allows the next one bit add with carry operation to add the two registers together.
 
 I forget why I have two similiar tables of instructions... So to clear things up I added
-a third table of instructions inbetween.
+a third table of instructions inbetween. Perhaps document each instruction in a subheading
+of its own.
 
 | opcode  | Functionality                                                     |
 |---------|-------------------------------------------------------------------|
