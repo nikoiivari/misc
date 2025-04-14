@@ -149,7 +149,7 @@ fn main ()
     
     // ==== Write executable file into outbuffer (ob) ====
 
-    write_xe_header(&mut ob, 0x000003, 0x000002, 0x000001, 0x00000);
+    write_xe_header(&mut ob, 0x000003, 0x000000, 0x000001, 0x00000);
     ps.obpos = 8 * 2; // oprows start after header
     
     //commandline args
