@@ -528,13 +528,13 @@ The 6bit opcode field can specify the opcode 0-63
 | opcode  | Functionality                                                     |
 |---------|-------------------------------------------------------------------|
 | 000000b | one bit vertical add with carry, bit 0                            |
-| 000000b | one bit vertical add with carry  bit 1                            |
-| 000000b | one bit vertical add with carry  bit 2                            |
-| 000000b | one bit vertical add with carry  bit 3                            |
-| 000000b | one bit vertical add with carry  bit 4                            |
-| 000000b | one bit vertical add with carry  bit 5                            |
-| 000000b | one bit vertical add with carry  bit 6                            |
-| 000000b | one bit vertical add with carry  bit 7                            |
+| 000000b | one bit vertical add with carry, bit 1                            |
+| 000000b | one bit vertical add with carry, bit 2                            |
+| 000000b | one bit vertical add with carry, bit 3                            |
+| 000000b | one bit vertical add with carry, bit 4                            |
+| 000000b | one bit vertical add with carry, bit 5                            |
+| 000000b | one bit vertical add with carry, bit 6                            |
+| 000000b | one bit vertical add with carry, bit 7                            |
 
 Two bytes on top of one another in even and odd registers get added to one another,
 storing result in the same bit column of the next even register. I f there is a carry
@@ -552,6 +552,36 @@ then output is 0 as it is for XOR, but now the carry bit is set also.
 
 When the carry bit is placed one bit-column to the left in the next odd register, this
 allows the next one bit add with carry operation to add the two registers together.
+
+Example: 2 + 2
+
+even: 0010
+odd:  0010 #one bit add, bit 0
+even: 0010
+odd:  0010 #one bit add, bit 1
+even: 0000
+odd:  0100 #one bit add, bit 2
+even: 0100 # = 4
+odd:  0000 # = no carry
+
+Example: 3 + 4
+
+even: 0011
+odd:  0100 # one bit add, bit 0
+even: 0001 # = 1
+odd:  0000 # no carry
+
+even: 0011
+odd:  0100 # one bit add, bit 1
+even: 0010 # = 2
+odd:  0000 # no carry
+
+even: 0011
+odd:  0100 # one bit add, bit 2
+even: 0100 # = 4
+odd:  0000 # no carry
+
+FIXME: example is with brainfart!
 
 I forget why I have two similiar tables of instructions... So to clear things up I added
 a third table of instructions inbetween. Perhaps document each instruction in a subheading
