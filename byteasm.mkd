@@ -557,12 +557,28 @@ Example: 2 + 2
 
 even: 0010
 odd:  0010 #one bit add, bit 0
+even: 0000 # = 0
+odd:  0000 # no carry
+         ^
+
 even: 0010
 odd:  0010 #one bit add, bit 1
+even: 0000 # = 0
+odd:  0100 # = carry bit
+        ^
+
 even: 0000
 odd:  0100 #one bit add, bit 2
 even: 0100 # = 4
 odd:  0000 # = no carry
+       ^
+Then just add the even results together -- ensure no carry:
+
+0000
+0000
+0100
+ ^^^
+0100
 
 Example: 3 + 4
 
@@ -581,11 +597,17 @@ odd:  0100 # one bit add, bit 2
 even: 0100 # = 4
 odd:  0000 # no carry
 
-FIXME: example is with brainfart!
+Then just add the even results together -- ensure no carry:
 
-I forget why I have two similiar tables of instructions... So to clear things up I added
-a third table of instructions inbetween. Perhaps document each instruction in a subheading
-of its own.
+0001
+0010
+0100
+ ^^^
+0111
+
+
+FIXME: Perhaps document each instruction in a subheading of its own.
+
 
 | opcode  | Functionality                                                     |
 |---------|-------------------------------------------------------------------|
