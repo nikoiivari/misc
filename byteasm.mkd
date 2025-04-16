@@ -502,10 +502,6 @@ The 6bit opcode field can specify the opcode 0-63
 
 | opcode  | Functionality                                                     |
 |---------|-------------------------------------------------------------------|
-| 000000b | 00b zero params -- nop, No Operation.                             |
-|         | There is room for zero as opcode with 01b, 10b, and 11b params... |
-|         |                                                                   |
-| 000001b | ... some other instruction, perhaps undefined, and trapped.       |
 | 000010b | ... some other instruction, perhaps undefined, and trapped.       |
 | 000011b | ... as above ...                                                  |
 | ...     | ...                                                               |
@@ -523,18 +519,53 @@ The 6bit opcode field can specify the opcode 0-63
 | 000000b | 10b two params: offset and immediate value;     r2 = 01h          |
 | ...     | ...                                                               |
 
+
+## Strict No-Op & No-Op that allows an overflow bit
+
+| opcode  | Functionality                                                           |
+|---------|-------------------------------------------------------------------------|
+| 000000b | 00b zero params -- Strict No-Op.                                        |
+|         |                                                                         |
+|         | No operation is performed. No bits in this byte are modified. Any       |
+|         | possible overflow bits from the byte column to the right are ignored.   |
+|         |                                                                         |
+
+
+| opcode  | Functionality                                                           |
+|---------|-------------------------------------------------------------------------|
+| 000001b | 00b zero params -- No-Op, allow one bit of overflow.                    |
+|         |                                                                         |
+|         | If an add operation from the byte column to the right has a carry bit   |
+|         | to overflow to this byte column, then that bit is set in th 0th bit of  |
+|         | this byte column.                                                       |
+|         |                                                                         |
+
+There is room for zero as opcode with 01b, 10b, and 11b params...
+
+
 ## One Bit Add With Carry
 
-| opcode  | Functionality                                                     |
-|---------|-------------------------------------------------------------------|
-| 000000b | one bit vertical add with carry, bit 0                            |
-| 000000b | one bit vertical add with carry, bit 1                            |
-| 000000b | one bit vertical add with carry, bit 2                            |
-| 000000b | one bit vertical add with carry, bit 3                            |
-| 000000b | one bit vertical add with carry, bit 4                            |
-| 000000b | one bit vertical add with carry, bit 5                            |
-| 000000b | one bit vertical add with carry, bit 6                            |
-| 000000b | one bit vertical add with carry, bit 7                            |
+| opcode  | Functionality                                                           |
+|---------|-------------------------------------------------------------------------|
+| 000000b | one bit vertical add with carry, bit 0                                  |
+| 000000b | one bit vertical add with carry, bit 1                                  |
+| 000000b | one bit vertical add with carry, bit 2                                  |
+| 000000b | one bit vertical add with carry, bit 3                                  |
+| 000000b | one bit vertical add with carry, bit 4                                  |
+| 000000b | one bit vertical add with carry, bit 5                                  |
+| 000000b | one bit vertical add with carry, bit 6                                  |
+| 000000b | one bit vertical add with carry, bit 7, if there is a carry bit,        |
+|         | set overflow, store carry bit in the first bit column of the next byte. |
+|         | For the overflow bit to be stored in the byte column to the left, the   |
+|         | byte column must be executing op 000001b -- No-Op allowing one bit of   |
+|         | overflow.                                                               |
+|         |                                                                         |
+
+
+| opcode  | Functionality                                                           |
+|---------|-------------------------------------------------------------------------|
+| 000000b | xor operation on all bits of the two inputs.                            |
+
 
 Two bytes on top of one another in even and odd registers get added to one another,
 storing result in the same bit column of the next even register. I f there is a carry
@@ -572,7 +603,7 @@ odd:  0100 #one bit add, bit 2
 even: 0100 # = 4
 odd:  0000 # = no carry
        ^
-Then just add the even results together -- ensure no carry:
+Then just add (or XOR) the even results together -- ensure no carry:
 
 0000
 0000
@@ -586,18 +617,21 @@ even: 0011
 odd:  0100 # one bit add, bit 0
 even: 0001 # = 1
 odd:  0000 # no carry
+         ^
 
 even: 0011
 odd:  0100 # one bit add, bit 1
 even: 0010 # = 2
 odd:  0000 # no carry
+        ^
 
 even: 0011
 odd:  0100 # one bit add, bit 2
 even: 0100 # = 4
 odd:  0000 # no carry
+       ^^^
 
-Then just add the even results together -- ensure no carry:
+Then just add (or XOR) the even results together -- ensure no carry:
 
 0001
 0010
