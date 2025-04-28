@@ -34,6 +34,8 @@ nand.out  ; nor.out   ; rol     ; rol     ; nop     ; nop     ; nop     ; nop
                                           # perhaps trailing nops are not really needed.
 ```
 
+TODO: this should be replaced with the hexym syntax described later...
+
 - Needs an instruction to invert inputs for NAND and NOR easily. Maybe a variant of NOT?
   So eo.not.eo does this?
 
@@ -522,49 +524,49 @@ The 6bit opcode field can specify the opcode 0-63
 
 ## Strict No-Op & No-Op that allows an overflow bit
 
-| opcode  | Functionality                                                           |
-|---------|-------------------------------------------------------------------------|
-| 000000b | 00b zero params -- Strict No-Op.                                        |
-|         |                                                                         |
-|         | No operation is performed. No bits in this byte are modified. Any       |
-|         | possible overflow bits from the byte column to the right are ignored.   |
-|         |                                                                         |
+| opcode  | hex | Functionality                                                            |
+|---------|-----|--------------------------------------------------------------------------|
+| 000000b | 00h | 00b zero params -- Strict No-Op.                                         |
+|         |     |                                                                          |
+|         |     | No operation is performed. No bits in this byte are modified. Any        |
+|         |     | possible overflow bits from the byte column to the right are ignored.    |
+|         |     |                                                                          |
 
 
-| opcode  | Functionality                                                           |
-|---------|-------------------------------------------------------------------------|
-| 000001b | 00b zero params -- No-Op, allow one bit of overflow.                    |
-|         |                                                                         |
-|         | If an add operation from the byte column to the right has a carry bit   |
-|         | to overflow to this byte column, then that bit is set in th 0th bit of  |
-|         | this byte column.                                                       |
-|         |                                                                         |
+| opcode  | hex |Functionality                                                             |
+|---------|-----|--------------------------------------------------------------------------|
+| 000001b | 01h | 00b zero params -- No-Op, allow one bit of overflow.                     |
+|         |     |                                                                          |
+|         |     | If an add operation from the byte column to the right has a carry bit    |
+|         |     | to overflow to this byte column, then that bit is set in th 0th bit of   |
+|         |     | this byte column.                                                        |
+|         |     |                                                                          |
 
 There is room for zero as opcode with 01b, 10b, and 11b params...
 
 
 ## One Bit Add With Carry
 
-| opcode  | Functionality                                                           |
-|---------|-------------------------------------------------------------------------|
-| 000000b | one bit vertical add with carry, bit 0                                  |
-| 000000b | one bit vertical add with carry, bit 1                                  |
-| 000000b | one bit vertical add with carry, bit 2                                  |
-| 000000b | one bit vertical add with carry, bit 3                                  |
-| 000000b | one bit vertical add with carry, bit 4                                  |
-| 000000b | one bit vertical add with carry, bit 5                                  |
-| 000000b | one bit vertical add with carry, bit 6                                  |
-| 000000b | one bit vertical add with carry, bit 7, if there is a carry bit,        |
-|         | set overflow, store carry bit in the first bit column of the next byte. |
-|         | For the overflow bit to be stored in the byte column to the left, the   |
-|         | byte column must be executing op 000001b -- No-Op allowing one bit of   |
-|         | overflow.                                                               |
-|         |                                                                         |
+| opcode  | hex | Functionality                                                            |
+|---------|-----|--------------------------------------------------------------------------|
+| 010000b | 10h | one bit vertical add with carry, bit 0                                   |
+| 010001b | 11h | one bit vertical add with carry, bit 1                                   |
+| 010010b | 12h | one bit vertical add with carry, bit 2                                   |
+| 010011b | 13h | one bit vertical add with carry, bit 3                                   |
+| 010100b | 14h | one bit vertical add with carry, bit 4                                   |
+| 010101b | 15h | one bit vertical add with carry, bit 5                                   |
+| 010110b | 16h | one bit vertical add with carry, bit 6                                   |
+| 010111b | 17h | one bit vertical add with carry, bit 7, if there is a carry bit,         |
+|         |     | set overflow, store carry bit in the first bit column of the next byte.  |
+|         |     | For the overflow bit to be stored in the byte column to the left, the    |
+|         |     | byte column must be executing op 000001b -- No-Op allowing one bit of    |
+|         |     | overflow.                                                                |
+|         |     |                                                                          |
 
 
-| opcode  | Functionality                                                           |
-|---------|-------------------------------------------------------------------------|
-| 000000b | xor operation on all bits of the two inputs.                            |
+| opcode  | hex | Functionality                                                            |
+|---------|-----|--------------------------------------------------------------------------|
+| 000000b | 00h | xor operation on all bits of the two inputs.                             |
 
 
 Two bytes on top of one another in even and odd registers get added to one another,
