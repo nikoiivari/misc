@@ -23,7 +23,7 @@ scope main
     var sthing: odd   .stuvwxyz   8byte   capability  # to store instance of scope something
 
     in argc:    even  .stuvwxyz   8byte   signed
-    in argv[]:  odd   .stuvwxyz   8byte   capability # argv[] should use string?
+    in argv[]:  odd   .stuvwxyz   8byte   capability  # argv[] should use string?
 
     out status: even          .z   1byte   signed
 
@@ -31,9 +31,15 @@ scope main
 fun main: (argc, argv)
     hexym
         #accum = @           # save accumulator TODO: the hexym could be more compact?
-        44 00 00 00 00 00 00 00
-        55 00 00 00 00 00 00 00 # TODO: nibblemuncher proper offset from scope base
-        
+        00 00 00 00 00 00 00 10
+        00 00 00 00 00 00 00 11
+        00 00 00 00 00 00 00 12
+        00 00 00 00 00 00 00 13
+        00 00 00 00 00 00 00 14
+        00 00 00 00 00 00 00 15
+        00 00 00 00 00 00 00 16
+        00 00 00 00 00 00 01 17
+
         #@ = @[0:0...3]     # Square brackets '[' and ']' imply indexing; not direct memory access
         c7 00 00 00 00 00 00 00
         
